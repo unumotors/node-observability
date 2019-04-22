@@ -1,0 +1,36 @@
+stages:
+  - setup
+  - test
+  - publish
+
+image: node:10.15.1-alpine
+
+cache:
+  paths:
+  - node_modules/
+
+before_script:
+- echo "${NPMRC}" > .npmrc
+
+setup:
+  stage: setup
+  script:
+  - npm install
+
+lint:
+  stage: test
+  script:
+  - npm run lint
+
+test:
+  stage: test
+  script:
+  - npm run test
+
+publish:
+  stage: publish
+  script: npm publish
+  only:
+    refs:
+    - tags
+

@@ -36,6 +36,12 @@ List of features we automatically install and configure.
 ### Health Checks
 Provides a custom server listens on port :9090 that exposes `/-/liveness` and `/-/readiness` endpoints.
 
+express
+```
+var server = http.createServer(app)
+Observability.registerServer(server)
+```
+
 ### Sentry
 Configures sentry error handling. This just catches unhandled exceptions it does not install it into any webserver such as express.
 
@@ -58,7 +64,7 @@ Full promethues metrics docs to follow.
 ```js
 const { Gauge } = require('prom-client')
 const connectedGauge = new Gauge({ name: 'unu_bot_slack_connected', help: 'If unu-bot is connected to slack' })
-monitoring.slack.connectedGauge.set(1)
+connectedGauge.set(1)
 ```
 
 ### UnhandledPromise

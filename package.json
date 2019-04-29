@@ -4,8 +4,11 @@
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
-    "test": "echo done",
-    "lint": "echo done"
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "test": "nyc ava --verbose ./test --tap | tap-xunit > results.xml",
+    "test-verbose": "nyc ava ./test --verbose --serial",
+    "test-coverage": "nyc report --reporter=text --reporter=text-summary"
   },
   "repository": {
     "type": "git",
@@ -15,6 +18,17 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@godaddy/terminus": "^4.1.0",
+    "@sentry/node": "^5.1.0",
     "prom-client": "^11.3.0"
+  },
+  "devDependencies": {
+    "ava": "^1.4.1",
+    "eslint": "^5.16.0",
+    "eslint-config-unu": "^1.2.4",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-plugin-import": "^2.17.2",
+    "express": "^4.16.4",
+    "nyc": "^14.0.0",
+    "tap-xunit": "^2.3.0"
   }
 }

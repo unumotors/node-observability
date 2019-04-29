@@ -3,29 +3,42 @@ stages:
   - test
   - publish
 
-image: node:10.15.1-alpine
-
-cache:
-  paths:
-  - node_modules/
+image: node:10.15-alpine
 
 before_script:
-- echo "${NPMRC}" > .npmrc
+- echo "${NPMRC}" > ~/.npmrc
 
 setup:
   stage: setup
   script:
   - npm install
+  cache:
+    policy: pull-push
+    paths:
+    - node_modules/
 
 lint:
   stage: test
   script:
   - npm run lint
+  cache:
+    policy: pull
+    paths:
+    - node_modules/
 
 test:
   stage: test
   script:
   - npm run test
+  - npm run test-coverage
+  cache:
+    policy: pull
+    paths:
+    - node_modules/
+  coverage: '/Statements.*?(\d+(?:\.\d+)?)%/'
+  artifacts:
+    reports:
+      junit: results.xml
 
 publish:
   stage: publish

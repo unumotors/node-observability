@@ -1,49 +1,11 @@
-stages:
-  - setup
-  - test
-  - publish
-
+# Use node:10.15-alpine as the base image to run tests/building
+# Right now only a single node version is supported
 image: node:10.15-alpine
 
-before_script:
-- echo "${NPMRC}" > ~/.npmrc
-
-setup:
-  stage: setup
-  script:
-  - npm install
-  cache:
-    policy: pull-push
-    paths:
-    - node_modules/
-
-lint:
-  stage: test
-  script:
-  - npm run lint
-  cache:
-    policy: pull
-    paths:
-    - node_modules/
-
-test:
-  stage: test
-  script:
-  - npm run test
-  - npm run test-coverage
-  cache:
-    policy: pull
-    paths:
-    - node_modules/
-  coverage: '/Statements.*?(\d+(?:\.\d+)?)%/'
-  artifacts:
-    reports:
-      junit: results.xml
-
-publish:
-  stage: publish
-  script: npm publish
-  only:
-    refs:
-    - tags
-
+include:
+  - project: 'gitlab-ci/templates'
+    # We use master instead of branches so we can automatically roll out updates
+    # That are no breaking changes. We do versioning on a file level
+    # If these break a user can manually go back and update the ref tag to a previous commit
+    ref: master
+    file: '/npm/build-test-release/0.1-template.yml'

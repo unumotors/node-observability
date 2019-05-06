@@ -1,0 +1,7 @@
+{
+  "all": true,
+  "exclude": [
+    ".eslintrc.js",
+    "test/**"
+  ]
+}

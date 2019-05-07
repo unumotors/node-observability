@@ -3,9 +3,11 @@
 image: node:10.15-alpine
 
 include:
+  # See template for docs 
+  # https://gitlab.unueng.com/gitlab-ci/templates/tree/master/npm/build-test-release
   - project: 'gitlab-ci/templates'
     # We use master instead of branches so we can automatically roll out updates
-    # That are no breaking changes. We do versioning on a file level
+    # That are not breaking changes. We do versioning on a file level
     # If these break a user can manually go back and update the ref tag to a previous commit
     ref: master
     file: '/npm/build-test-release/0.1-template.yml'

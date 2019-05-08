@@ -2,7 +2,7 @@
 // but still allow overiding in env's
 // No way to easily pass functions/config to init
 // As this needs to be the first lin
-require('../../index').init({
+const observability = require('../../index').init({
   // Globally configured service name
   // DO NOT prefix by env
   serviceName: 'david-observability-run-server',
@@ -15,7 +15,13 @@ require('../../index').init({
   }
 })
 
-const observability = require('../../index')
+// This verifies unhandled promises print error messages
+// and exit
+// async function moo (){
+//   const foo = require("foo/vbar")
+// }
+// moo()
+
 // Liveness check based on if connected to slack or not
 // Delay check.
 // `connectedGauge` will be null and throw an error until its ready
@@ -28,7 +34,7 @@ observability.monitoring.addLivenessCheck(() => {
   }
 })
 
-// Slack
+// // Slack
 const connectedGauge = new observability.metrics.Gauge({ name: 'connected', help: 'If server is up' })
 connectedGauge.set(0)
 

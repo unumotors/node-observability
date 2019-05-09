@@ -10,4 +10,4 @@ include:
     # That are not breaking changes. We do versioning on a file level
     # If these break a user can manually go back and update the ref tag to a previous commit
     ref: master
-    file: '/npm/build-test-release/0.1-template.yml'
+    file: '/npm/0.1-template.yml'

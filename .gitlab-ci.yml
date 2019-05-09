@@ -3,8 +3,8 @@
 image: node:10.15-alpine
 
 include:
-  # See template for docs 
-  # https://gitlab.unueng.com/gitlab-ci/templates/tree/master/npm/build-test-release
+  # See template for docs
+  # https://gitlab.unueng.com/gitlab-ci/templates/tree/master/npm
   - project: 'gitlab-ci/templates'
     # We use master instead of branches so we can automatically roll out updates
     # That are not breaking changes. We do versioning on a file level

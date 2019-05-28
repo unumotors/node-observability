@@ -22,7 +22,7 @@ const observability = require('../../index').init({
 // }
 // moo()
 
-let failCheck = true
+let failCheck = false
 // Liveness check based on if connected to slack or not
 // Delay check.
 observability.monitoring.addLivenessCheck(async() => {

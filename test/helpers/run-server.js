@@ -22,16 +22,18 @@ const observability = require('../../index').init({
 // }
 // moo()
 
+let failCheck = true
 // Liveness check based on if connected to slack or not
 // Delay check.
-// `connectedGauge` will be null and throw an error until its ready
-observability.monitoring.addLivenessCheck(() => {
-  // get returns hash in format
-  // values: [ { value: 0, labels: {}, timestamp: undefined } ]
-  // piggyback off existing metrics (these are then saved to prometheus)
-  if (connectedGauge.get().values[0].value != 1) {
-    throw new Error('Server not running')
+observability.monitoring.addLivenessCheck(async() => {
+  if (failCheck) {
+    console.log('failed')
+    throw new Error('foo')
   }
+})
+
+observability.monitoring.addOnSignalHook(async() => {
+  console.log('Shutting down')
 })
 
 // // Slack
@@ -54,5 +56,5 @@ observability.monitoring.bindHttpServer(server)
 setTimeout(function() {
   console.log('starting to listen')
   server.listen(3000)
-  connectedGauge.set(1)
+  //connectedGauge.set(1)
 }, 3000)

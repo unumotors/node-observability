@@ -145,6 +145,16 @@ This is useful because in development there is no `Sentry` and sentry installs a
 
 Its better to exit cleanly than potentially land up in a state where nothing is working as expected.
 
+This behavior can be disabled if needed by passing the following to `init`
+
+```js
+{
+  unhandledRejection: {
+    exitOnError: false
+  }
+}
+```
+
 
 ### Metrics
 The custom monitoring server listens on port `:9090` that exposes `/-/metrics` and exposes prometheus metrics

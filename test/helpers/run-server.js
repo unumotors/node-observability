@@ -10,6 +10,10 @@ const observability = require('../../index').init({
   monitoring: {
     externalHttp: true
   },
+  // This is the default
+  // unhandledRejection: {
+  //   exitOnError: true
+  // },
   sentry: {
     // dsn: 'https://foo.com'
   }

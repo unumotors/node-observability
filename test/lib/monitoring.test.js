@@ -88,18 +88,17 @@ test('convert list of functions to promises', async t => {
   t.is(promises.length, 2)
 })
 
-
-test('bindHttpServer correctly adds checks', t => {
+test('observeServer correctly adds checks', t => {
   const server = {
     listening: false
   }
 
   const monitor = new MonitorServer()
-  t.is(monitor.boundServer, null)
-  monitor.bindHttpServer(server)
+  t.is(monitor.observedServer, null)
+  monitor.observeServer(server)
   t.is(monitor.livenessChecks.length, 1)
   t.is(monitor.readinessChecks.length, 1)
-  t.is(monitor.boundServer, server)
+  t.is(monitor.observedServer, server)
 
   try {
     monitor.readinessChecks[0]()
@@ -120,4 +119,19 @@ test('bindHttpServer correctly adds checks', t => {
 
   monitor.readinessChecks[0]()
   monitor.livenessChecks[0]()
+})
+
+
+test('observeServer correctly adds request handler for express app', async t => {
+  t.plan(2)
+  const server = {
+    listening: false
+  }
+
+  const app = {
+    use: (requestHandler) => { t.truthy(requestHandler) }
+  }
+  const monitor = new MonitorServer()
+  monitor.observeServer(server, app)
+  t.is(monitor.observedServer, server)
 })

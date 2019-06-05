@@ -6,14 +6,12 @@ const observability = require('../../index').init({
   // Globally configured service name
   // DO NOT prefix by env
   serviceName: 'david-observability-run-server',
-  // This allows us to wait for the http server
-  monitoring: {
-    externalHttp: true
-  },
   // This is the default
   // unhandledRejection: {
   //   exitOnError: true
   // },
+  // do not reference an env varibale
+  // we need to use the same sentry dsn accross envs
   sentry: {
     // dsn: 'https://foo.com'
   }
@@ -54,11 +52,12 @@ app.get('/', (req, res) => {
 })
 
 const server = http.createServer(app)
-observability.monitoring.bindHttpServer(server)
+// Adds shutdown handlers, liveness checks, and sentry to express
+observability.monitoring.observeServer(server, app)
 
 
 setTimeout(function() {
   console.log('starting to listen')
   server.listen(3000)
-  //connectedGauge.set(1)
+  connectedGauge.set(1)
 }, 3000)

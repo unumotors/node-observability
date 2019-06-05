@@ -43,18 +43,20 @@ const config = {
   // Globally configured service name
   // DO NOT prefix by env
   serviceName: 'david-observability-run-server',
-  // This forces the libarry to wait for the http server to be listening
-  // Also enables shutdown handlers
-  monitoring: {
-    externalHttp: true
-  },
   // PUBLIC sentry DSN to include
-  // Hard code in code we split by env inside the library
+  // This is the unique identifiecation of the service/project
+  // The custom environment data is handled automatically by the libary
+  // We use a hard coded DSN so we can track errors through envs
+  // We do allow this to be configured via an env flag but this should be avoided
   sentry: {
     dsn: 'https://$HASH@sentry.io/$PROJECT_ID'
-  }
-  // Optional config use at own risk
-  environment: process.env.CUSTOM_VALUE,
+  },
+  // Default configuration
+  // unhandledRejection: {
+  //   exitOnError: true
+  // }
+  // Optional env use at own risk!
+  environment: process.env.CUSTOM_VALUE || 'dev',
 
 }
 ```
@@ -62,10 +64,11 @@ const config = {
 ### Env settings
 
 Required
+
 |Name       |Default                              | Description |
 |-----------|-------------------------------------|-------------|
 |`APP_ENV`  | `config.environment`                |             |
-|           |                                     |             |
+|`NODE_ENV` | na                                  |This is injected as "build" time so into the docker image, Supported values are `development`, `test`, `production` ONLY for runtime configuration see `APP_ENV`      |
 
 Optional
 
@@ -85,16 +88,14 @@ List of features we automatically install and configure.
 ### Health Checks
 Provides a custom server listens on port `:9090` that exposes `/-/liveness` and `/-/readiness` endpoints.
 
-### Bind to an existing web server
+### Bind to an existing (express/http) web server
 express / http
 
-This automatically adds the correct liveness/readiness checks but also installs shutdown handlers
-
-Remember to set `monitoring.external=true` in your config so the healchecks know to wait
+This automatically adds the correct liveness/readiness checks but also installs shutdown handlers and Sentry error handlers
 
 ```js
 var server = http.createServer(app)
-observability.bindHttpServer(server)
+observability.monitoring.observeServer(server, app)
 ```
 
 ### Adding a custom health check
@@ -122,11 +123,12 @@ Configures sentry error handling. This just catches unhandled exceptions it does
 
 Adding to express
 ```js
-// The request handler must be the first middleware on the app
-app.use(observability.Sentry.Handlers.requestHandler())
+// Calling with the http and express server will automatically add sentry error handlers
+observability.monitoring.observeServer(server, app)
 ```
 
 Recording a custom exception
+
 ```js
 try {
   errorFunction()
@@ -135,7 +137,7 @@ try {
 }
 ```
 
-Enabled by default in any `NODE_ENV` that isn't development.
+Sentry is enabled by default in any `NODE_ENV` that isn't development.
 
 ### UnhandledPromises
 

@@ -13,40 +13,58 @@ test('Registers global handler by default', async t => {
     t.truthy(callback)
   }
   const x = new UnhandledRejection()
-  console.log(x)
   x.init()
   process.on = temp
 })
 
 // I tried adding a test for code inside the block but its hard since ava catches unhandled exceptions
 
-test('Allow disabling UnhandledRejection handler', async t => {
-  t.plan(1)
+test('Allow disabling UnhandledRejection handler exiting', async t => {
+  t.plan(4)
   const x = new UnhandledRejection()
   const temp = process.exit
+  const logTemp = console.warn
+  process.exit = function(code) {
+    t.is(code, 1)
+  }
+
+  console.warn = function(title, msg, err) {
+    t.is(title, 'UnhandledPromiseRejectionWarning: Error:')
+    t.is(msg, 'exit error')
+    t.truthy(err)
+  }
   process.exit = function(code) {
     t.fail(code, 'was called')
   }
 
   x.init({ exitOnError: false })
-  x.exitFunction()
+  x.rejectionHandler(new Error('exit error'))
   process.exit = temp
+  console.warn = logTemp
   t.pass()
 })
 
 test('exits with error code when enabled (passed value)', async t => {
-  t.plan(1)
+  t.plan(4)
   const x = new UnhandledRejection()
 
   // the function that is called when enabled is process.exit
   const temp = process.exit
+  const logTemp = console.warn
   process.exit = function(code) {
     t.is(code, 1)
   }
 
+  console.warn = function(title, msg, err) {
+    t.is(title, 'UnhandledPromiseRejectionWarning: Error:')
+    t.is(msg, 'exit error')
+    t.truthy(err)
+  }
+
   x.init({ exitOnError: true })
-  x.exitFunction(1)
+  x.rejectionHandler(new Error('exit error'))
   process.exit = temp
+  console.warn = logTemp
 })
 
 test('exit by default', async t => {

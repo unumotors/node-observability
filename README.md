@@ -13,14 +13,14 @@ See Table of Contents
 
 ## Usage
 
-  npm install --save @david/observability
+  npm install --save @infrastructure/observability
 
 In the first line of your `index.js` include the following. This is because our tracing library auto instruments all other requires
 
 Minimum configuration to get going.
 ```js
 // Needs to be the first thing included in your application
-const observability = require('@david/observability').init({
+const observability = require('@infrastructure/observability').init({
   // Globally configured service name
   // DO NOT prefix by env
   // ENV is auto configured via APP_ENV
@@ -167,7 +167,7 @@ The custom monitoring server listens on port `:9090` that exposes `/-/metrics` a
 `observability.metrics` is just an instance of `prom-client` so any thing you could do with the official library you can do here.
 
 ```js
-const observability = require('@david/observability').init({})
+const observability = require('@infrastructure/observability').init({})
 // returns metricsClient is an instance of prom-client.client
 const connectedGauge = new observability.metrics.Gauge({ name: 'unu_bot_slack_connected', help: 'If unu-bot is connected to slack' })
 connectedGauge.set(0)

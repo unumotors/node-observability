@@ -6,10 +6,12 @@ const observability = require('../../index').init({
   // Globally configured service name
   // DO NOT prefix by env
   serviceName: 'david-observability-run-server',
-  // This allows us to wait for the http server
-  monitoring: {
-    externalHttp: true
-  },
+  // This is the default
+  // unhandledRejection: {
+  //   exitOnError: true
+  // },
+  // do not reference an env varibale
+  // we need to use the same sentry dsn accross envs
   sentry: {
     // dsn: 'https://foo.com'
   }
@@ -22,16 +24,18 @@ const observability = require('../../index').init({
 // }
 // moo()
 
+let failCheck = false
 // Liveness check based on if connected to slack or not
 // Delay check.
-// `connectedGauge` will be null and throw an error until its ready
-observability.monitoring.addLivenessCheck(() => {
-  // get returns hash in format
-  // values: [ { value: 0, labels: {}, timestamp: undefined } ]
-  // piggyback off existing metrics (these are then saved to prometheus)
-  if (connectedGauge.get().values[0].value != 1) {
-    throw new Error('Server not running')
+observability.monitoring.addLivenessCheck(async() => {
+  if (failCheck) {
+    console.log('failed')
+    throw new Error('foo')
   }
+})
+
+observability.monitoring.addOnSignalHook(async() => {
+  console.log('Shutting down')
 })
 
 // // Slack
@@ -48,7 +52,8 @@ app.get('/', (req, res) => {
 })
 
 const server = http.createServer(app)
-observability.monitoring.bindHttpServer(server)
+// Adds shutdown handlers, liveness checks, and sentry to express
+observability.monitoring.observeServer(server, app)
 
 
 setTimeout(function() {

@@ -1,6 +1,6 @@
 {
-  "name": "@david/observability",
-  "version": "0.0.3",
+  "name": "@infrastructure/observability",
+  "version": "0.0.4",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.unueng.com:david/node-observability.git"
+    "url": "git@gitlab.unueng.com:infrastructure/node-observability.git"
   },
   "author": "david <david@unumotors.com>",
   "license": "UNLICENSED",

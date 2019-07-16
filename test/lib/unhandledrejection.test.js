@@ -1,5 +1,6 @@
 const test = require('ava')
 const UnhandledRejection = require('../../lib/unhandledrejection')
+const Sentry = require('@sentry/node')
 
 test('return type of UnhandledRejection', t => {
   t.truthy(UnhandledRejection)
@@ -24,9 +25,6 @@ test('Allow disabling UnhandledRejection handler exiting', async t => {
   const x = new UnhandledRejection()
   const temp = process.exit
   const logTemp = console.warn
-  process.exit = function(code) {
-    t.is(code, 1)
-  }
 
   console.warn = function(title, msg, err) {
     t.is(title, 'UnhandledPromiseRejectionWarning: Error:')
@@ -39,6 +37,37 @@ test('Allow disabling UnhandledRejection handler exiting', async t => {
 
   x.init({ exitOnError: false })
   x.rejectionHandler(new Error('exit error'))
+  process.exit = temp
+  console.warn = logTemp
+  t.pass()
+})
+
+
+test('Sentry should clear its queues before exiting', async t => {
+  Sentry.init()
+  t.plan(6)
+  const x = new UnhandledRejection()
+  const temp = process.exit
+  const logTemp = console.warn
+
+  console.warn = function(title, msg, err) {
+    t.is(title, 'UnhandledPromiseRejectionWarning: Error:')
+    t.is(msg, 'exit error')
+    t.truthy(err)
+  }
+  // Verifies that exit was called
+  process.exit = function(code) {
+    t.is(code, 1)
+  }
+
+  // Verifies that flush was called
+  x.getClient = function() {
+    return { flush: (val) => t.is(val, 5000) }
+  }
+
+  x.init({ exitOnError: true })
+
+  await x.rejectionHandler(new Error('exit error'))
   process.exit = temp
   console.warn = logTemp
   t.pass()
@@ -62,7 +91,7 @@ test('exits with error code when enabled (passed value)', async t => {
   }
 
   x.init({ exitOnError: true })
-  x.rejectionHandler(new Error('exit error'))
+  await x.rejectionHandler(new Error('exit error'))
   process.exit = temp
   console.warn = logTemp
 })

@@ -18,7 +18,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@godaddy/terminus": "^4.1.0",
-    "@sentry/node": "^5.1.0",
+    "@sentry/node": "^5.5.0",
     "prom-client": "^11.3.0"
   },
   "devDependencies": {

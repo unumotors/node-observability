@@ -13,7 +13,7 @@ const observability = require('../../index').init({
   // do not reference an env varibale
   // we need to use the same sentry dsn accross envs
   sentry: {
-    // dsn: 'https://foo.com'
+    // dsn: 'https://na@sentry.com/adf'
   }
 })
 

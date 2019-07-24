@@ -26,7 +26,7 @@ const observability = require('@infrastructure/observability').init({
   // ENV is auto configured via APP_ENV
   serviceName: 'david-observability-run-server',
   sentry: {
-    dsn: 'https://$HASH@sentry.io/$PROJECT_ID'
+    dsn: '__PUBLIC_DSN__'
   }
 })
 ```
@@ -49,7 +49,7 @@ const config = {
   // We use a hard coded DSN so we can track errors through envs
   // We do allow this to be configured via an env flag but this should be avoided
   sentry: {
-    dsn: 'https://$HASH@sentry.io/$PROJECT_ID'
+    dsn: '__PUBLIC_DSN__'
   },
   // Default configuration
   // unhandledRejection: {
@@ -95,6 +95,7 @@ This automatically adds the correct liveness/readiness checks but also installs 
 
 ```js
 var server = http.createServer(app)
+// observeServer must be come before any other middleware in the app
 observability.monitoring.observeServer(server, app)
 ```
 
@@ -124,6 +125,7 @@ Configures sentry error handling. This just catches unhandled exceptions it does
 Adding to express
 ```js
 // Calling with the http and express server will automatically add sentry error handlers
+// observeServer must be come before any other middleware in the app
 observability.monitoring.observeServer(server, app)
 ```
 

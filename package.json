@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "test": "nyc --all ava --verbose ./test --tap | tap-xunit > results.xml",
-    "test-verbose": "nyc --all ava ./test --verbose --serial",
+    "test-verbose": "nyc --all ava ./test --verbose",
     "test-coverage": "nyc report --reporter=text --reporter=text-summary"
   },
   "repository": {

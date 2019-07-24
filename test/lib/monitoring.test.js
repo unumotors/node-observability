@@ -1,6 +1,7 @@
 const test = require('ava')
 const request = require('supertest')
 const MonitorServer = require('../../lib/monitoring')
+const express = require('express')
 
 test('Should return a object', t => {
   t.truthy(MonitorServer)
@@ -66,14 +67,22 @@ test('Add addOnSignalHook checks should work', async t => {
   t.is(monitor.signalHooks.length, 2)
 })
 
-test('convert list of functions to promises with an error', async t => {
+test('convert list of functions to promises with an error for async', async t => {
   t.plan(1)
   const f = async() => {
     throw new Error('should be rejected')
   }
-  const g = async() => {}
-  const list = [f, g]
+  const list = [f]
 
+  await MonitorServer.convertListToPromises(list).catch(err => t.is(err.message, 'should be rejected'))
+})
+
+test('convert list of functions to promises with an error', async t => {
+  t.plan(1)
+  const f = () => {
+    throw new Error('should be rejected')
+  }
+  const list = [f]
   await MonitorServer.convertListToPromises(list).catch(err => t.is(err.message, 'should be rejected'))
 })
 
@@ -122,16 +131,36 @@ test('observeServer correctly adds checks', t => {
 })
 
 
-test('observeServer correctly adds request handler for express app', async t => {
-  t.plan(2)
+test('observeServer correctly adds request and error handler for express app', t => {
   const server = {
     listening: false
   }
 
+  let count = 0
+
   const app = {
-    use: (requestHandler) => { t.truthy(requestHandler) }
+    use: (requestHandler) => {
+      t.truthy(requestHandler)
+      count += 1
+    }
   }
+
   const monitor = new MonitorServer()
   monitor.observeServer(server, app)
   t.is(monitor.observedServer, server)
+  // Verify we call app.use for both error and request handler
+  t.is(count, 2)
+})
+
+test('observeServer throws an error if called after middleware has been added', t => {
+  const server = {
+    listening: false
+  }
+
+  const app = express()
+  app.use(() => {})
+
+  const monitor = new MonitorServer()
+  const err = t.throws(() => monitor.observeServer(server, app))
+  t.regex(err.message, /before any other middleware/)
 })

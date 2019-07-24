@@ -1,3 +1,13 @@
+# 0.0.5
+
+## Improvements
+* Better handle `unhandledPromises` by clearing sentry's queue before exit
+* Automatically install  Sentry's `errorHandler` in `monitoring.observeServer`
+
+## BREAKING CHNAGES:
+* If `monitoring.observeServer(server, app)` is called after any other express middleware is added it
+throws an exception
+
 # 0.0.4
 
 ## BREAKING CHNAGES:

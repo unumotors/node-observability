@@ -46,15 +46,15 @@ const http = require('http')
 const express = require('express')
 
 const app = express()
+const server = http.createServer(app)
+
+// Adds shutdown handlers, liveness checks, and sentry to express
+// observeServer must be come before any other middleware in the app
+observability.monitoring.observeServer(server, app)
 
 app.get('/', (req, res) => {
   res.send('ok')
 })
-
-const server = http.createServer(app)
-// Adds shutdown handlers, liveness checks, and sentry to express
-observability.monitoring.observeServer(server, app)
-
 
 setTimeout(function() {
   console.log('starting to listen')

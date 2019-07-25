@@ -21,3 +21,6 @@ yarn-error.log*
 *.sw*
 .nyc_output
 results.xml
+
+# npm packages
+*.tgz

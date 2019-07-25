@@ -1,3 +1,8 @@
+# 0.0.6
+
+## Improvements
+* Only include index.js and lib/ in npm package
+
 # 0.0.5
 
 ## Improvements

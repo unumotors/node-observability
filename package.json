@@ -10,6 +10,9 @@
     "test-verbose": "nyc --all ava ./test --verbose",
     "test-coverage": "nyc report --reporter=text --reporter=text-summary"
   },
+  "files":[
+    "/lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git@gitlab.unueng.com:infrastructure/node-observability.git"

@@ -51,6 +51,13 @@ const config = {
   sentry: {
     dsn: '__PUBLIC_DSN__'
   },
+  monitoring: {
+    // default is enabled
+    // but this is also defaults to false when running in unit test mode
+    // i.e NODE_ENV=trest
+    enabled: true,
+    port: 9090
+  }
   // Default configuration
   // unhandledRejection: {
   //   exitOnError: true

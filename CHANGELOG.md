@@ -1,7 +1,10 @@
+
 # 0.0.6
 
 ## Improvements
 * Only include index.js and lib/ in npm package
+* Automatically init (with default values) when `NODE_ENV=test` mode, allow for unit tests to be run with out manually doing hacks
+* Do not start and bind internal monitoring server when `NODE_ENV=test`
 
 # 0.0.5
 

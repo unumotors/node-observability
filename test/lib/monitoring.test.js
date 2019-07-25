@@ -2,9 +2,50 @@ const test = require('ava')
 const request = require('supertest')
 const MonitorServer = require('../../lib/monitoring')
 const express = require('express')
+const http = require('http')
+const sinon = require('sinon')
+
+// Create a sinon sandbox which automatically gets restored between tests
+test.beforeEach((t) => {
+  t.context.sinon = sinon.createSandbox()
+})
+
+test.afterEach((t) => {
+  t.context.sinon.restore()
+})
+
 
 test('Should return a object', t => {
   t.truthy(MonitorServer)
+})
+
+test('Should init with default values', t => {
+  // this is the default but lets be explicit
+  t.context.sinon.stub(process.env, 'NODE_ENV').value('test')
+  let monitor = new MonitorServer()
+  t.is(monitor.config.port, 9090)
+  // false in unit tests
+  t.is(monitor.config.enabled, false)
+
+  t.context.sinon.stub(process.env, 'NODE_ENV').value('development')
+  monitor = new MonitorServer()
+  // enabled for any thing other than test
+  t.is(monitor.config.enabled, true)
+  process.env.MONITOR_PORT = 4532
+  monitor = new MonitorServer()
+  // enabled for any thing other than test
+  t.is(monitor.config.port, '4532')
+  delete process.env.MONITOR_PORT
+})
+
+test('Should init with passed values', t => {
+  let monitor = new MonitorServer({ port: 8080 })
+  t.is(monitor.config.port, 8080)
+
+  t.context.sinon.stub(process.env, 'NODE_ENV').value('development')
+  monitor = new MonitorServer({ enabled: true })
+  // enabled for any thing other than test
+  t.is(monitor.config.enabled, true)
 })
 
 
@@ -19,12 +60,45 @@ test('Have a metrics endpoint', async t => {
   t.is(res.text, '')
 })
 
-test('Should allow init and then close', async t => {
+test('Should allow init and then close', t => {
   const monitor = new MonitorServer()
   // just to make sure we can init and close safely
   monitor.init()
   monitor.close()
   t.pass()
+})
+
+test('given the unit tests we should not open the port for monitoring server', t => {
+  t.context.sinon.stub(process.env, 'NODE_ENV').value('test')
+  const monitor = new MonitorServer()
+  const server = http.createServer()
+  server.listen = () => t.fail('should not call listen in NODE_ENV=test')
+  monitor.createServer = () => server
+  // just to make sure we can init and close safely
+  monitor.init()
+  t.pass()
+})
+
+test('given development env we should start listening on default port', t => {
+  t.plan(1)
+  t.context.sinon.stub(process.env, 'NODE_ENV').value('development')
+  const monitor = new MonitorServer()
+  const server = http.createServer()
+  server.listen = (port) => t.is(port, 9090)
+  monitor.createServer = () => server
+  // just to make sure we can init and close safely
+  monitor.init()
+})
+
+test('given production env we should start listening on default port', t => {
+  t.plan(1)
+  t.context.sinon.stub(process.env, 'NODE_ENV').value('production')
+  const monitor = new MonitorServer()
+  const server = http.createServer()
+  server.listen = (port) => t.is(port, 9090)
+  monitor.createServer = () => server
+  // just to make sure we can init and close safely
+  monitor.init()
 })
 
 test('Should give help info on /', async t => {

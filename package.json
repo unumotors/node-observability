@@ -22,9 +22,13 @@
   "dependencies": {
     "@godaddy/terminus": "^4.1.0",
     "@sentry/node": "^5.5.0",
-    "prom-client": "^11.3.0"
+    "prom-client": "^11.3.0",
+    "@opencensus/exporter-ocagent": "0.0.18",
+    "@opencensus/nodejs": "0.0.18",
+    "@opencensus/propagation-jaeger": "0.0.18"
   },
   "devDependencies": {
+    "@opencensus/exporter-object": "0.0.18",
     "ava": "^1.4.1",
     "eslint": "^5.16.0",
     "eslint-config-unu": "^1.2.4",

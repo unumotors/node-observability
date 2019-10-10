@@ -9,7 +9,7 @@ See Table of Contents
 * -> [HealthChecks](#healthChecks)
 * -> [Sentry](#sentry)
 * -> [UnhandledPromises](#UnhandledPromises)
-* -> [Datadog](#datadog)
+* -> [Tracing](#tracing)
 
 ## Usage
 
@@ -57,6 +57,12 @@ const config = {
     // i.e NODE_ENV=trest
     enabled: true,
     port: 9090
+  },
+  tracing: {
+    enabled: false,
+    host: 'ocagent',
+    port: 55678
+    debug: false
   }
   // Default configuration
   // unhandledRejection: {
@@ -79,13 +85,16 @@ Required
 
 Optional
 
-|Name                       |Default              | Description |
-|---------------------------|---------------------|-------------|
-|`DD_TRACE_AGENT_HOSTNAME`  | `datadog`           |                               |
-|`DD_SERVICE_NAME`          | `config.serviceName`|                                 |
-|`MONITORING_PORT`          | 9090                |Set monitoring server to custom value|
-|`SENTRY_DEBUG`             | false               |Can put sentry in debug mode|
-|`SENTRY_DSN`               | `config.sentry.dsn` |                             |
+|Name                       |Default                | Description |
+|---------------------------|-----------------------|-------------|
+|`DD_SERVICE_NAME`          | `config.serviceName`  |                                 |
+|`MONITORING_PORT`          | 9090                  |Set monitoring server to custom value|
+|`SENTRY_DEBUG`             | false                 |Can put sentry in debug mode|
+|`SENTRY_DSN`               | `config.sentry.dsn`   |                             |
+|`TRACING_ENABLED`          | false |                             |
+|`TRACING_HOST`          | ocagent |                             |
+|`TRACING_PORT`          | 55678 |                             |
+|`TRACING_DEBUG`          | false |                             |
 
 
 
@@ -181,3 +190,28 @@ const observability = require('@infrastructure/observability').init({})
 const connectedGauge = new observability.metrics.Gauge({ name: 'unu_bot_slack_connected', help: 'If unu-bot is connected to slack' })
 connectedGauge.set(0)
 ```
+
+### Tracing
+Supports exporting trace data to opencencus compatible server.
+
+```js
+const observability = require('@infrastructure/observability').init({
+  serviceName: 'foo',
+  tracing: {
+    enabled: true
+  }
+})
+
+const { tracer } = observability.tracing
+// This should happen automatically
+
+tracer.startRootSpan({ name: 'main' }, rootSpan => {
+  const span = tracer.startChildSpan({ name: 'doWork' })
+  span.addAnnotation('invoking doWork')y
+  span.end()
+  // Be sure to call rootSpan.end().
+  rootSpan.end()
+})
+```
+
+or via `TRACING_ENABLED=true` env flag

@@ -5,7 +5,8 @@ const instance = new Observability()
 // Automatically setup and instantiate the libary in testing mode
 // This allows users of the lib to not have to setup custom init code them selves
 if (process.env.NODE_ENV == 'test') {
-  instance.init({})
+  // require base config
+  instance.init({ serviceName: 'unit-tests' })
 }
 
 module.exports = instance

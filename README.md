@@ -95,6 +95,7 @@ Optional
 |`TRACING_HOST`          | ocagent |                             |
 |`TRACING_PORT`          | 55678 |                             |
 |`TRACING_DEBUG`          | false |                             |
+|`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
 
 
 
@@ -215,3 +216,12 @@ tracer.startRootSpan({ name: 'main' }, rootSpan => {
 ```
 
 or via `TRACING_ENABLED=true` env flag
+
+### Running tests
+
+Running unit tests requires a running mongodb instance without auth.
+
+Run:
+
+- `mongod`
+- `npm run test-verbose`

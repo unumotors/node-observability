@@ -1,6 +1,6 @@
 {
   "name": "@infrastructure/observability",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
@@ -21,11 +21,13 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@godaddy/terminus": "^4.1.0",
-    "@sentry/node": "^5.5.0",
-    "prom-client": "^11.3.0",
+    "@opencensus/core": "0.0.18",
     "@opencensus/exporter-ocagent": "0.0.18",
     "@opencensus/nodejs": "0.0.18",
-    "@opencensus/propagation-jaeger": "0.0.18"
+    "@opencensus/propagation-jaeger": "0.0.18",
+    "@sentry/node": "^5.5.0",
+    "prom-client": "^11.3.0",
+    "shimmer": "^1.2.0"
   },
   "devDependencies": {
     "@opencensus/exporter-object": "0.0.18",
@@ -34,7 +36,9 @@
     "eslint-config-unu": "^1.2.4",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-plugin-import": "^2.17.2",
-    "express": "^4.16.4",
+    "express": "^4.17.1",
+    "mongodb": "^3.3.3",
+    "mongoose": "^5.7.7",
     "nyc": "^14.0.0",
     "sinon": "^7.3.2",
     "supertest": "^4.0.2",

@@ -1,8 +1,9 @@
-# 0.2
+# 0.2.0
 
-Add mongodb tracing to opencensus. See README for details.
+* Add mongodb tracing to opencensus. See README for details.
+* Bump sentry to 5.7.1 fixes https://npmjs.com/advisories/1184
 
-# 0.1
+# 0.1.0
 
 Added opencensus tracing. See README for details.
 

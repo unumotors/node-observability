@@ -25,7 +25,7 @@
     "@opencensus/exporter-ocagent": "0.0.18",
     "@opencensus/nodejs": "0.0.18",
     "@opencensus/propagation-jaeger": "0.0.18",
-    "@sentry/node": "^5.5.0",
+    "@sentry/node": "^5.7.1",
     "prom-client": "^11.3.0",
     "shimmer": "^1.2.0"
   },

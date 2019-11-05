@@ -1,3 +1,7 @@
+# 0.2.1
+
+* Fix debug logs being enabled by default
+
 # 0.2.0
 
 * Add mongodb tracing to opencensus. See README for details.

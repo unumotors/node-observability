@@ -1,3 +1,7 @@
+/* eslint-disable no-await-in-loop */
+// Enable extensive mongo tracing
+process.env.TRACING_CAPTURE_MONGO_QUERIES_ENABLED = true
+
 // Allow globally setting the Datadog service name
 // but still allow overiding in env's
 // No way to easily pass functions/config to init
@@ -47,6 +51,23 @@ observability.monitoring.addLivenessCheck(async() => {
 observability.monitoring.addOnSignalHook(async() => {
   console.log('Shutting down')
 })
+
+// Mongo
+const mongoose = require('mongoose')
+
+mongoose.connect(`${process.env.MONGO_CONNECTION_STRING || 'mongodb://localhost:27017/test'}`, {
+  useFindAndModify: false,
+  useNewUrlParser: true
+}).catch(err => {
+  console.log('Error connecting to mongo', err)
+  process.exit(1)
+})
+
+const TestSchema = new mongoose.Schema({
+  key: { type: String }
+})
+
+const TestModel = mongoose.model('Test', TestSchema)
 
 // // Slack
 const connectedGauge = new observability.metrics.Gauge({ name: 'connected', help: 'If server is up' })
@@ -146,9 +167,9 @@ function main() {
   // grpc, mongodb etc), a root span is automatically started whenever an
   // incoming request is received (in other words, all middleware already runs
   // within a root span).
-  tracer.startRootSpan({ name: 'main' }, rootSpan => {
+  tracer.startRootSpan({ name: 'main' }, async rootSpan => {
     for (let i = 0; i < 10; i++) {
-      doWork()
+      await doWork()
     }
 
     // Be sure to call rootSpan.end().
@@ -156,13 +177,14 @@ function main() {
   })
 }
 
-function doWork() {
+async function doWork() {
   // 5. Start another span. In this example, the main method already started a
   // span, so that'll be the parent span, and this will be a child span.
   const span = tracer.startChildSpan({ name: 'doWork' })
 
   console.log('doing busy work')
   // for (let i = 0; i <= 40000000; i++) {} // short delay
+  await TestModel.create({ key: Date.now() })
 
   // 6. Annotate our span to capture metadata about our operation
   span.addAnnotation('invoking doWork')

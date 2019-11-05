@@ -1,3 +1,10 @@
+# 0.2
+
+Add mongodb tracing to opencensus. See README for details.
+
+# 0.1
+
+Added opencensus tracing. See README for details.
 
 # 0.0.6
 

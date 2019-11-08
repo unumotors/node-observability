@@ -18,3 +18,9 @@ The oc-agent doesn't have a UI but the jeager and zipkin endpoints are accessabl
 OC receiver http://localhost:55678
 Zipkin http://localhost:9411
 Jeager http://localhost:14268
+
+## Test process
+
+After you have a setup using `docker-compose up` run `node run-server.js` and go through these manual steps:
+
+1. Get traces. There should only be one trace. No traces for /-/readiness, /-/liveness, /-/ping and /ping

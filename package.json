@@ -1,6 +1,6 @@
 {
   "name": "@infrastructure/observability",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
@@ -37,6 +37,7 @@
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-plugin-import": "^2.17.2",
     "express": "^4.17.1",
+    "got": "^9.6.0",
     "mongodb": "^3.3.3",
     "mongoose": "^5.7.7",
     "nyc": "^14.0.0",

@@ -1,3 +1,7 @@
+# 0.2.2
+
+* Ignoring multiple monitoring endpoints in tracing to not spam tracing. See README for details.
+
 # 0.2.1
 
 * Fix debug logs being enabled by default

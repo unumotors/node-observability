@@ -217,6 +217,11 @@ tracer.startRootSpan({ name: 'main' }, rootSpan => {
 
 or via `TRACING_ENABLED=true` env flag
 
+Tracing ignores paths starting with the following regex:
+
+* All paths starting with /-/: /^\/-\/(.*)/
+* All paths equal to /ping: /^\/ping/
+
 ### Running tests
 
 Running unit tests requires a running mongodb instance without auth.

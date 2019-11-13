@@ -28,6 +28,7 @@ const observability = require('../../index').init({
     // dsn: 'https://na@sentry.com/adf'
   }
 })
+const { fork } = require('child_process')
 
 // https://github.com/census-instrumentation/opencensus-node/tree/master/packages/opencensus-exporter-object
 
@@ -119,6 +120,19 @@ app.get('/test', (req, res) => {
   aa.end()
 })
 
+app.get('/-/readiness', (req, res) => {
+  res.send()
+})
+app.get('/-/liveness', (req, res) => {
+  res.send()
+})
+app.get('/-/ping', (req, res) => {
+  res.send()
+})
+app.get('/ping', (req, res) => {
+  res.send()
+})
+
 app.get('/', (req, res) => {
   const data = JSON.stringify({
     todo: 'Buy the milk'
@@ -195,8 +209,21 @@ async function doWork() {
 
 main()
 
+async function doRequests() {
+  // We need to spawn this so tracing does not monitor got http requests
+  const compute = fork('get.js')
+  compute.send('start')
+  await new Promise(res => {
+    compute.on('message', () => {
+      res()
+    })
+  })
+}
+
+
 setTimeout(function() {
   console.log('starting to listen')
   server.listen(3000)
+  doRequests()
   connectedGauge.set(1)
 }, 1000)

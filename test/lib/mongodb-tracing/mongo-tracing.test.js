@@ -24,18 +24,7 @@ const assert = require('assert')
 const mongodb = require('mongodb')
 const _1 = require('../../../lib/mongodb-tracing')
 const test = require('ava')
-
-/** Collects ended root spans to allow for later analysis. */
-const SpanVerifier = (function() {
-  function SpanVerifier() {
-    this.endedSpans = []
-  }
-  SpanVerifier.prototype.onStartSpan = function() { }
-  SpanVerifier.prototype.onEndSpan = function(span) {
-    this.endedSpans.push(span)
-  }
-  return SpanVerifier
-}())
+const { SpanVerifier } = require('../../helpers/tracing')
 /**
  * Access the mongodb collection.
  * @param url The mongodb URL to access.
@@ -144,7 +133,6 @@ test.serial.cb('Instrumenting query operations should create a child span for up
 test.serial.cb('Instrumenting query operations should create a child span for remove', (t) => {
   tracer.startRootSpan({ name: 'removeRootSpan' }, function(rootSpan) {
     collection.deleteOne({ a: 3 }, function(err) {
-      assert.strictEqual(rootSpanVerifier.endedSpans.length, 1)
       rootSpan.end()
       assert.ifError(err)
       assertSpan(rootSpanVerifier, `${DB_NAME}.${COLLECTION_NAME}.query.remove`, core_1.SpanKind.SERVER, t)

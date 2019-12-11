@@ -1,6 +1,6 @@
 {
   "name": "@infrastructure/observability",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {

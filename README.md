@@ -222,6 +222,8 @@ Tracing ignores paths starting with the following regex:
 * All paths starting with /-/: /^\/-\/(.*)/
 * All paths equal to /ping: /^\/ping/
 
+All traces have a default attribute "environment". Defaults to "development" and is overwritten by APP_ENV.
+
 ### Running tests
 
 Running unit tests requires a running mongodb instance without auth.

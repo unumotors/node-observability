@@ -1,3 +1,7 @@
+# 0.2.3
+
+* Added default attribute "environment" to all traces. Defaults to "development" and is overwritten by APP_ENV
+
 # 0.2.2
 
 * Ignoring multiple monitoring endpoints in tracing to not spam tracing. See README for details.

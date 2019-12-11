@@ -2,7 +2,7 @@ const test = require('ava')
 const Tracing = require('../../lib/tracing')
 const sinon = require('sinon')
 const { ObjectTraceExporter } = require('@opencensus/exporter-object')
-
+const { SpanVerifier } = require('../helpers/tracing')
 
 // Create a sinon sandbox which automatically gets restored between tests
 test.beforeEach((t) => {
@@ -83,4 +83,41 @@ test('should be able to configure debug settings', t => {
   t.is(trace.config.debug, true)
   t.is(trace.config.logLevel, 5)
   t.is(trace.config.logger, console)
+})
+
+test.cb('should have environment attribute test by default', t => {
+  const tracing = new Tracing({
+    serviceName: 'foo', enabled: true
+  })
+  tracing.start()
+  const { tracer } = tracing
+  const rootSpanVerifier = new SpanVerifier()
+  tracer.registerSpanEventListener(rootSpanVerifier)
+  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
+    rootSpan.end()
+    t.deepEqual(rootSpanVerifier.endedSpans[0].attributes, {
+      environment: 'test'
+    })
+    t.end()
+  })
+})
+
+test.cb('should have APP_ENV environment attribute by default', t => {
+  const orgEnv = process.env.APP_ENV
+  process.env.APP_ENV = 'unit-test-overwrite'
+  const tracing = new Tracing({
+    serviceName: 'foo', enabled: true
+  })
+  tracing.start()
+  const { tracer } = tracing
+  const rootSpanVerifier = new SpanVerifier()
+  tracer.registerSpanEventListener(rootSpanVerifier)
+  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
+    rootSpan.end()
+    t.deepEqual(rootSpanVerifier.endedSpans[0].attributes, {
+      environment: 'unit-test-overwrite'
+    })
+    process.env.APP_ENV = orgEnv
+    t.end()
+  })
 })

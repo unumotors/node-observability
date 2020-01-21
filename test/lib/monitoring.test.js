@@ -177,11 +177,11 @@ test('observeServer correctly adds checks', t => {
   }
 
   const monitor = new MonitorServer()
-  t.is(monitor.observedServer, null)
+  t.deepEqual(monitor.observedServers, [])
   monitor.observeServer(server)
   t.is(monitor.livenessChecks.length, 1)
   t.is(monitor.readinessChecks.length, 1)
-  t.is(monitor.observedServer, server)
+  t.is(monitor.observedServers[0], server)
 
   try {
     monitor.readinessChecks[0]()
@@ -221,12 +221,12 @@ test('observeServer correctly adds request and error handler for express app', t
 
   const monitor = new MonitorServer()
   monitor.observeServer(server, app)
-  t.is(monitor.observedServer, server)
-  // Verify we call app.use for both error and request handler
-  t.is(count, 2)
+  t.is(monitor.observedServers[0], server)
+  // Verify we call app.use for tracing id, error and request handler
+  t.is(count, 3)
 })
 
-test('observeServer throws an error if called after middleware has been added', t => {
+test('observeServer can be called after middleware has been added', t => {
   const server = {
     listening: false
   }
@@ -235,6 +235,7 @@ test('observeServer throws an error if called after middleware has been added', 
   app.use(() => {})
 
   const monitor = new MonitorServer()
-  const err = t.throws(() => monitor.observeServer(server, app))
-  t.regex(err.message, /before any other middleware/)
+  monitor.observeServer(server, app)
+  // eslint-disable-next-line no-underscore-dangle
+  t.is(app._router.stack.length, 6)
 })

@@ -108,11 +108,16 @@ Provides a custom server listens on port `:9090` that exposes `/-/liveness` and 
 ### Bind to an existing (express/http) web server
 express / http
 
-This automatically adds the correct liveness/readiness checks but also installs shutdown handlers and Sentry error handlers
+Adds monitoring features to an existing web server (express + http):
+
+- This automatically adds the correct liveness/readiness checks
+- Installs shutdown handlers and Sentry error handlers
+- Adds middleware that parses Jaeger propagation tracing headers and adds a "trace_id" tag to Sentry errors. Also exposes `req.traceId` to all middlewares coming after.
+
+Can be called multiple times with different servers.
 
 ```js
 var server = http.createServer(app)
-// observeServer must be come before any other middleware in the app
 observability.monitoring.observeServer(server, app)
 ```
 

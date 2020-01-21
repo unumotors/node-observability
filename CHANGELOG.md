@@ -1,3 +1,8 @@
+# 0.2.4
+
+* Using observeServer now parses trace ids in the Jaeger propagation format from requests and adds a "trace_id" tag to Sentry errors
+* observeServer now supports multiple servers
+
 # 0.2.3
 
 * Added default attribute "environment" to all traces. Defaults to "development" and is overwritten by APP_ENV

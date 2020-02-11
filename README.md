@@ -229,6 +229,8 @@ Tracing ignores paths starting with the following regex:
 
 All traces have a default attribute "environment". Defaults to "development" and is overwritten by APP_ENV.
 
+To test locally, you can follow the steps described [here](./test/helpers/README.md)
+
 ### Running tests
 
 Running unit tests requires a running mongodb instance without auth.

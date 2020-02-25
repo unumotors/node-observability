@@ -64,7 +64,7 @@ test.before(async() => {
 })
 
 
-test.serial('Should add trace id to sentry error and express req', async t => {
+test.serial('Should add trace ids to sentry errors', async t => {
   const eventPromise = new Promise((resolve) => {
     sentryEmitter.on('event', (event) => {
       resolve(event)
@@ -80,9 +80,8 @@ test.serial('Should add trace id to sentry error and express req', async t => {
   await got.get(`http://localhost:${port}/error`)
 
   const event = await eventPromise
-  const req = await expressMiddlewarePromise
+  await expressMiddlewarePromise
 
   t.truthy(event.tags.trace_id, 'sentry event should contain trace id tag')
-  t.truthy(req.traceId)
-  t.is(req.traceId, event.tags.trace_id)
+  await observability.tracing.exporter.buffer.flush() // Flush tracings to jaeger
 })

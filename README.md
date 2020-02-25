@@ -112,7 +112,7 @@ Adds monitoring features to an existing web server (express + http):
 
 - This automatically adds the correct liveness/readiness checks
 - Installs shutdown handlers and Sentry error handlers
-- Adds middleware that parses Jaeger propagation tracing headers and adds a "trace_id" tag to Sentry errors. Also exposes `req.traceId` to all middlewares coming after.
+- Adds middleware that adds a "trace_id" tag to Sentry errors containing the current root trace id.
 
 Can be called multiple times with different servers.
 

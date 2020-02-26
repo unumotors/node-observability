@@ -1,3 +1,7 @@
+# 0.2.5
+
+* Fix issue of observeServer using jaeger header instead of opencencus to retrieve trace id
+
 # 0.2.4
 
 * Using observeServer now parses trace ids in the Jaeger propagation format from requests and adds a "trace_id" tag to Sentry errors

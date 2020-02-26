@@ -8,6 +8,7 @@ const express = require('express')
 const observability = require('../../index')
 const { Sentry } = require('../../lib/sentry')
 const EventEmitter = require('events')
+const { spawn } = require('child_process')
 
 // emitter for emitting events to the tests
 class SentryError extends EventEmitter {}
@@ -56,6 +57,10 @@ app.get('/error', (req, res) => {
   res.send()
 })
 
+app.get('/success', (req, res) => {
+  res.send('OK')
+})
+
 observability.monitoring.observeServer(server, app)
 
 test.before(async() => {
@@ -85,3 +90,23 @@ test.serial('Should add trace ids to sentry errors', async t => {
   t.truthy(event.tags.trace_id, 'sentry event should contain trace id tag')
   await observability.tracing.exporter.buffer.flush() // Flush tracings to jaeger
 })
+
+test.serial.only('Can still do http requests from clients without tracing enabled', async t => {
+  var process = spawn('node', ['test/helpers/get-localhost.js'])
+  process.stdout.on('data', (data) => {
+    t.is(Number(`${data}`), 200)
+  })
+
+  process.stderr.on('data', (data) => {
+    t.fail(data)
+  })
+
+  await new Promise(resolve => {
+    process.on('exit', function(code, signal) {
+      console.log('child process exited with ' +
+                  `code ${code} and signal ${signal}`)
+      resolve()
+    })
+  })
+})
+

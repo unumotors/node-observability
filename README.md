@@ -200,14 +200,21 @@ connectedGauge.set(0)
 ### Tracing
 Supports exporting trace data to opencencus compatible server.
 
+You activate tracing manually or per via `TRACING_ENABLED=true` env flag:
+
 ```js
 const observability = require('@infrastructure/observability').init({
   serviceName: 'foo',
+  // Manually activating tracing
   tracing: {
     enabled: true
   }
 })
+```
 
+You can access the tracer directly:
+
+```js
 const { tracer } = observability.tracing
 // This should happen automatically
 
@@ -220,7 +227,16 @@ tracer.startRootSpan({ name: 'main' }, rootSpan => {
 })
 ```
 
-or via `TRACING_ENABLED=true` env flag
+You can add an attribute to the current root span using `addRootSpanAttribute`. You can also access the `currentRootSpan` directly. You should check for it to be defined before using it, as it can be not defined outside of a root span:
+
+```js
+// Add an attribute
+observability.tracing.addRootSpanAttribute('tag', 'some tag content')
+// Direct access to the span
+const span = observability.tracing.currentRootSpan()
+span && span.addAttribute('tag', 'tag content')
+
+```
 
 Tracing ignores paths starting with the following regex:
 

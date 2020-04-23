@@ -121,3 +121,48 @@ test.cb('should have APP_ENV environment attribute by default', t => {
     t.end()
   })
 })
+
+test.cb('currentRootSpan() works as expected', t => {
+  const orgEnv = process.env.APP_ENV
+  process.env.APP_ENV = 'unit-test-overwrite'
+  const tracing = new Tracing({
+    serviceName: 'foo', enabled: true
+  })
+  t.is(tracing.currentRootSpan(), undefined, 'should return undefined if tracing not initialized')
+  tracing.start()
+  t.is(tracing.currentRootSpan(), null, 'should return no root span outside of a root span')
+
+  const { tracer } = tracing
+  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
+    t.is(tracing.currentRootSpan().id, rootSpan.id)
+    t.is(tracing.currentTraceId(), rootSpan.traceIdLocal)
+    rootSpan.end()
+    process.env.APP_ENV = orgEnv
+    t.end()
+  })
+})
+
+
+test.cb('addRootSpanAttribute adds an attribute', t => {
+  const orgEnv = process.env.APP_ENV
+  process.env.APP_ENV = 'unit-test-overwrite'
+  const tracing = new Tracing({
+    serviceName: 'foo', enabled: true
+  })
+  tracing.start()
+  const { tracer } = tracing
+  const rootSpanVerifier = new SpanVerifier()
+  tracer.registerSpanEventListener(rootSpanVerifier)
+  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
+    const key = 'key123'
+    const value = 'value123'
+    tracing.addRootSpanAttribute(key, value)
+    rootSpan.end()
+    t.deepEqual(rootSpanVerifier.endedSpans[0].attributes, {
+      environment: 'unit-test-overwrite',
+      [key]: value
+    })
+    process.env.APP_ENV = orgEnv
+    t.end()
+  })
+})

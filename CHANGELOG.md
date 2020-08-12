@@ -1,3 +1,12 @@
+# 0.2.7
+
+* Fix tracing ignore regex to match both `/-/ping` and `/-/ping/`
+
+# 0.2.6
+
+* Add shortcut for getting current root span.  `observability.tracing.currentRootSpan()`
+* Add short cut for adding observability.tracing.addRootSpanAttribute('tag', 'some tag content')
+
 # 0.2.5
 
 * Fix issue of observeServer using jaeger header instead of opencencus to retrieve trace id
@@ -41,13 +50,13 @@ Added opencensus tracing. See README for details.
 * Better handle `unhandledPromises` by clearing sentry's queue before exit
 * Automatically install  Sentry's `errorHandler` in `monitoring.observeServer`
 
-## BREAKING CHNAGES:
+## BREAKING CHANGES:
 * If `monitoring.observeServer(server, app)` is called after any other express middleware is added it
 throws an exception
 
 # 0.0.4
 
-## BREAKING CHNAGES:
+## BREAKING CHANGES:
 
 * Rename `monitoring.bindServer(server)` -> `monitoring.observeServer(server, app)`
 * **Remove tracing support for now!** This means automatic tracing has been removed as well as `tracer` property

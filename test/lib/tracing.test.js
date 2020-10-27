@@ -24,7 +24,7 @@ test('should validate serviceName is required', t => {
   const error = t.throws(() => {
     // eslint-disable-next-line no-new
     new Tracing({})
-  }, Error)
+  }, { instanceOf: Error })
   t.is(error.message, 'serviceName is required')
 })
 

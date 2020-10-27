@@ -1,18 +1,24 @@
 {
   "name": "@infrastructure/observability",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
-    "test": "nyc --all ava --verbose ./test --tap | tap-xunit > results.xml",
-    "test-verbose": "nyc --all ava ./test --verbose",
+    "test": "nyc --all ava --verbose --tap | tap-xunit > results.xml",
+    "test-verbose": "nyc --all ava --verbose",
     "test-coverage": "nyc report --reporter=text --reporter=text-summary"
   },
   "files": [
     "/lib"
   ],
+  "ava": {
+    "files": [
+      "test/lib/*",
+      "test/lib/*/*"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git@gitlab.unueng.com:infrastructure/node-observability.git"
@@ -31,7 +37,7 @@
   },
   "devDependencies": {
     "@opencensus/exporter-object": "0.0.18",
-    "ava": "^1.4.1",
+    "ava": "^3.13.0",
     "eslint": "^5.16.0",
     "eslint-config-unu": "^1.2.4",
     "eslint-friendly-formatter": "^4.0.1",

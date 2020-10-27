@@ -1,3 +1,7 @@
+# 0.2.8
+
+* Update dependencies with vulnerabilities
+
 # 0.2.7
 
 * Fix tracing ignore regex to match both `/-/ping` and `/-/ping/`

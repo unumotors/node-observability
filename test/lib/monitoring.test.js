@@ -205,7 +205,7 @@ test('observeServer correctly adds checks', t => {
 })
 
 
-test('observeServer correctly adds request and error handler for express app', t => {
+test('addPreControllersMiddlewares correctly adds middlewares for Express app', t => {
   const server = {
     listening: false
   }
@@ -220,10 +220,63 @@ test('observeServer correctly adds request and error handler for express app', t
   }
 
   const monitor = new MonitorServer()
-  monitor.observeServer(server, app)
+  monitor.observeServer(server)
+  monitor.addPreControllersMiddlewares(app)
   t.is(monitor.observedServers[0], server)
-  // Verify we call app.use for tracing id, error and request handler
-  t.is(count, 3)
+  // Verify we call app.use for tracing id and request handler
+  t.is(count, 2)
+})
+
+test('addPreControllersMiddlewares throws if Express app is undefined', t => {
+  const server = {
+    listening: false
+  }
+
+  const monitor = new MonitorServer()
+  monitor.observeServer(server)
+
+  const err = t.throws(() => {
+    monitor.addPreControllersMiddlewares(undefined)
+  }, { instanceOf: Error })
+
+  t.is(err.message, 'express application object is undefined')
+})
+
+test('addPostControllersMiddlewares correctly adds middlewares for Express app', t => {
+  const server = {
+    listening: false
+  }
+
+  let count = 0
+
+  const app = {
+    use: (requestHandler) => {
+      t.truthy(requestHandler)
+      count += 1
+    }
+  }
+
+  const monitor = new MonitorServer()
+  monitor.observeServer(server)
+  monitor.addPostControllersMiddlewares(app)
+  t.is(monitor.observedServers[0], server)
+  // Verify we call app.use for tracing id and request handler
+  t.is(count, 1)
+})
+
+test('addPostControllersMiddlewares throws if Express app is undefined', t => {
+  const server = {
+    listening: false
+  }
+
+  const monitor = new MonitorServer()
+  monitor.observeServer(server)
+
+  const err = t.throws(() => {
+    monitor.addPostControllersMiddlewares(undefined)
+  }, { instanceOf: Error })
+
+  t.is(err.message, 'express application object is undefined')
 })
 
 test('observeServer can be called after middleware has been added', t => {
@@ -235,7 +288,7 @@ test('observeServer can be called after middleware has been added', t => {
   app.use(() => {})
 
   const monitor = new MonitorServer()
-  monitor.observeServer(server, app)
+  monitor.observeServer(server)
   // eslint-disable-next-line no-underscore-dangle
-  t.is(app._router.stack.length, 6)
+  t.is(app._router.stack.length, 3)
 })

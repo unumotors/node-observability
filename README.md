@@ -106,19 +106,33 @@ List of features we automatically install and configure.
 Provides a custom server listens on port `:9090` that exposes `/-/liveness` and `/-/readiness` endpoints.
 
 ### Bind to an existing (express/http) web server
-express / http
-
 Adds monitoring features to an existing web server (express + http):
 
 - This automatically adds the correct liveness/readiness checks
 - Installs shutdown handlers and Sentry error handlers
-- Adds middleware that adds a "trace_id" tag to Sentry errors containing the current root trace id.
+- Adds middleware that adds a `trace_id` tag to Sentry errors containing the current root trace id
 
 Can be called multiple times with different servers.
 
 ```js
 var server = http.createServer(app)
-observability.monitoring.observeServer(server, app)
+observability.monitoring.observeServer(server)
+
+observability.monitoring.addPreControllersMiddlewares(app)
+
+// Setup all the controllers here ...
+app.get('/foo',  (req, res) => res.sendStatus(200).end()))
+app.get('/bar',  (req, res) => res.sendStatus(200).end()))
+
+observability.monitoring.addPostControllersMiddlewares(app)
+
+// Setup other error handlers here ...
+function errorHandler(err, req, res, next) {
+  const statusCode = err.statusCode || err.code || 500
+  const errorMessage = err.message
+  res.status(statusCode)
+  return res.json({ error: err })
+}
 ```
 
 ### Adding a custom health check
@@ -140,15 +154,31 @@ observability.monitoring.addReadinessCheck(() => {
 ```
 
 ### Sentry
-Configures sentry error handling. This just catches unhandled exceptions it does not install it into any webserver such as express.
+Configures Sentry error handling. This just catches unhandled exceptions it does not install it into any webserver such as express.
 
-**important** this requires that a sentry DSN is configured in **production** we don't want to support services with out at least exception handling.
+**Important:** this requires that a Sentry DSN is configured in **production**: we don't want to support services without at least exception handling.
 
 Adding to express
 ```js
-// Calling with the http and express server will automatically add sentry error handlers
+// Calling with the http and express server will automatically add Sentry request handlers
 // observeServer must be come before any other middleware in the app
-observability.monitoring.observeServer(server, app)
+observability.monitoring.observeServer(server)
+observability.monitoring.addPreControllersMiddlewares(app)
+
+// Setup all the controllers here ...
+app.get('/foo',  (req, res) => res.sendStatus(200).end()))
+app.get('/bar',  (req, res) => res.sendStatus(200).end()))
+
+// Calling with Express server will add Sentry error handler
+observability.monitoring.addPostControllersMiddlewares(app)
+
+// Setup other error handlers here ...
+function errorHandler(err, req, res, next) {
+  const statusCode = err.statusCode || err.code || 500
+  const errorMessage = err.message
+  res.status(statusCode)
+  return res.json({ error: err })
+}
 ```
 
 Recording a custom exception

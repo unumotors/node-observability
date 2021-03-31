@@ -1,3 +1,12 @@
+# 0.3.0
+
+* Fix Sentry error handler configuration: it now creates Sentry alerts for HTTP errors >500
+* Add `addPreControllersMiddlewares`: function to configure the handlers that have to be set **before** the controllers in an Express app (i.e. Sentry request and tracing handlers)
+* Add `addPostControllersMiddlewares`: function to configure the handlers that have to be set **after** the controllers in an Express app (i.e. Sentry error handler)
+
+## Breaking changes
+* `observeServer(server, app)` becomes just `observeServer(server)`: it doesn't add any handler to the Express application, hence it just accept `server` as argument
+
 # 0.2.8
 
 * Update dependencies with vulnerabilities

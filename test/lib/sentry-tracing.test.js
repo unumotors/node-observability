@@ -47,10 +47,14 @@ observability.init({
 const app = express()
 const server = http.createServer(app)
 
+observability.monitoring.observeServer(server)
+
 app.use((req, res, next) => {
   sentryEmitter.emit('middleware', req)
   next()
 })
+
+observability.monitoring.addPreControllersMiddlewares(app)
 
 app.get('/error', (req, res) => {
   Sentry.captureEvent(new Error('testing sentry tracing errors'))
@@ -61,13 +65,12 @@ app.get('/success', (req, res) => {
   res.send('OK')
 })
 
-observability.monitoring.observeServer(server, app)
+observability.monitoring.addPostControllersMiddlewares(app)
 
 test.before(async() => {
   server.listen(port)
   await { then(r, f) { server.on('listening', r); server.on('error', f) } }
 })
-
 
 test.serial('Should add trace ids to sentry errors', async t => {
   const eventPromise = new Promise((resolve) => {
@@ -91,7 +94,7 @@ test.serial('Should add trace ids to sentry errors', async t => {
   await observability.tracing.exporter.buffer.flush() // Flush tracings to jaeger
 })
 
-test.serial.only('Can still do http requests from clients without tracing enabled', async t => {
+test.serial('Can still do http requests from clients without tracing enabled', async t => {
   var process = spawn('node', ['test/helpers/get-localhost.js'])
   process.stdout.on('data', (data) => {
     t.is(Number(`${data}`), 200)
@@ -109,4 +112,3 @@ test.serial.only('Can still do http requests from clients without tracing enable
     })
   })
 })
-

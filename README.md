@@ -96,8 +96,7 @@ Optional
 |`TRACING_PORT`          | 55678 |                             |
 |`TRACING_DEBUG`          | false |                             |
 |`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
-
-
+|`MONITOR_DOMAIN_FIX_DISABLED` | undefined | If set, the domain fix will not be applied |
 
 ## Features
 List of features we automatically install and configure.
@@ -134,6 +133,8 @@ function errorHandler(err, req, res, next) {
   return res.json({ error: err })
 }
 ```
+
+This also adds a fix to the domain weak reference issue (see lib/domain-fix.js for details). This can be disabled manually using the `MONITOR_DOMAIN_FIX_DISABLED` env variable.
 
 ### Adding a custom health check
 

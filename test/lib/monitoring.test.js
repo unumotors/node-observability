@@ -221,7 +221,9 @@ test('addPreControllersMiddlewares correctly adds middlewares for Express app', 
 
   const monitor = new MonitorServer()
   monitor.observeServer(server)
+  t.is(monitor.domainFix, undefined)
   monitor.addPreControllersMiddlewares(app)
+  t.is(typeof monitor.domainFix.strongReferences, 'object', 'should initiate domain hack')
   t.is(monitor.observedServers[0], server)
   // Verify we call app.use for tracing id and request handler
   t.is(count, 2)

@@ -1,3 +1,11 @@
+# 0.3.1
+
+* Fix a nodejs bug, where using `addPreControllersMiddlewares` could crash the server under high load
+
+Sentry internally uses the domain feature of nodejs (deprecated). This is used to catch all errors in a context. These domains are kept inside a js map using a weak reference. If the number of requests increases strongly, something is garbage collecting these weak references before the code can add a reference to it. When it then tries to access it, it is referencing an undefined, which then has no .get.
+
+See nodejs core issue https://github.com/nodejs/node/issues/30122
+
 # 0.3.0
 
 * Fix Sentry error handler configuration: it now creates Sentry alerts for HTTP errors >500

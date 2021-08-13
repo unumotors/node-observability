@@ -1,3 +1,7 @@
+# 0.4.0
+
+* Added the GitLab Feature Flags feature
+
 # 0.3.1
 
 * Fix a nodejs bug, where using `addPreControllersMiddlewares` could crash the server under high load

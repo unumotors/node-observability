@@ -23,7 +23,6 @@ test('given the test env it should correctly setup the singleton', t => {
   t.is(observability.config.serviceName, 'unit-tests')
 })
 
-
 // Just making sure its disabled by default
 test('given tracing isnt enabled it shouldnt even be setup', t => {
   process.env.NODE_ENV = 'development'

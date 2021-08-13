@@ -1,6 +1,6 @@
 {
   "name": "@infrastructure/observability",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
@@ -37,7 +37,8 @@
     "@sentry/node": "^5.7.1",
     "http-errors": "^1.8.0",
     "prom-client": "^11.3.0",
-    "shimmer": "^1.2.0"
+    "shimmer": "^1.2.0",
+    "unleash-client": "^3.9.1"
   },
   "devDependencies": {
     "@opencensus/exporter-object": "0.0.18",
@@ -51,7 +52,7 @@
     "mongodb": "^3.3.3",
     "mongoose": "^5.12.0",
     "nyc": "^14.0.0",
-    "sinon": "^7.3.2",
+    "sinon": "^7.5.0",
     "supertest": "^4.0.2",
     "tap-xunit": "^2.3.0"
   }

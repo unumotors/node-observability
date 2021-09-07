@@ -332,7 +332,7 @@ The `isEnabled(feature, context)` function has two arguments:
 
 If Feature Flags are not configured in `node-observability` (i.e. `featureFlags` not passed in `config`), all Feature Flags are disabled by default and this function returns `false`.
 
-Additionally if there are any issues with the connection to Gitlab, it will default to `false` for all features.
+It may take a few seconds until node-observability did pull the data from Gitlab. Until that point, all feature flags will default to `false`. Your code needs to take that into account. Additionally, if there are any issues with the connection to Gitlab, it will default to `false` for all features. This is the desired behavior and is done to prevent a hard dependency on Gitlab.
 
 **Try to always pass in a context if possible. Always document the Feature Flag in the README.md of the project. Stick to the above naming convention (lowercase, separation by `_`)**
 

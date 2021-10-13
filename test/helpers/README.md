@@ -10,14 +10,7 @@ Should be enough to get a working setup.
 
 You can browse the following endpoints
 
-Zipkin UI http://localhost:19411/zipkin/
 Jeager UI http://localhost:16686
-
-The oc-agent doesn't have a UI but the jeager and zipkin endpoints are accessable on
-
-OC receiver http://localhost:55678
-Zipkin http://localhost:9411
-Jeager http://localhost:14268
 
 ## Test process
 

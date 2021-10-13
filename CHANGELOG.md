@@ -1,3 +1,7 @@
+# 1.0.0
+
+* Replaced Opencensus with OpenTelemtry
+
 # 0.4.0
 
 * Added the GitLab Feature Flags feature

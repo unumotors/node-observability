@@ -1,6 +1,6 @@
 # Use node:10.15-alpine as the base image to run tests/building
 # Right now only a single node version is supported
-image: node:10.15-alpine
+image: node:14.15-alpine
 
 include:
   # See template for docs
@@ -12,6 +12,11 @@ include:
     ref: master
     file: '/npm/0.1-template.yml'
 
+variables:
+  TAUBE_AMQP_URI: "amqp://guest:guest@localhost"
+
 services:
   - name: mongo:4.0
     alias: mongodb
+  - name: rabbitmq:3.8-management-alpine
+    alias: rabbitmq

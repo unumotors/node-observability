@@ -1,168 +1,329 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable global-require */
 const test = require('ava')
+
 const Tracing = require('../../lib/tracing')
-const sinon = require('sinon')
-const { ObjectTraceExporter } = require('@opencensus/exporter-object')
-const { SpanVerifier } = require('../helpers/tracing')
+const { InMemorySpanExporter } = require('@opentelemetry/sdk-trace-base')
+const { Joi } = require('celebrate')
+const api = require('@opentelemetry/api')
 
-// Create a sinon sandbox which automatically gets restored between tests
-test.beforeEach((t) => {
-  t.context.sinon = sinon.createSandbox()
+// Tracing needs to go before the imports (as it does when importing node-observabilty)
+const traceExporter = new InMemorySpanExporter()
+const tracing = new Tracing({
+  enabled: true,
+  serviceName: 'unit-test-service',
+  traceExporter
 })
 
-test.afterEach((t) => {
-  t.context.sinon.restore()
-})
+let resolve
+const promise = new Promise(res => resolve = res)
+tracing.start().then(resolve)
+
+const express = require('express')
+const got = require('got')
+const taube = require('@cloud/taube')
+const mongoose = require('mongoose')
+const http = require('http')
+const io = require('socket.io')
+const ioClient = require('socket.io-client')
 
 
-test('Should return a Object', t => {
-  t.truthy(Tracing)
-  const trace = new Tracing({ serviceName: 'foo' })
-  t.truthy(trace)
-})
+taube.amqp.init()
 
-test('should validate serviceName is required', t => {
-  const error = t.throws(() => {
-    // eslint-disable-next-line no-new
-    new Tracing({})
-  }, { instanceOf: Error })
-  t.is(error.message, 'serviceName is required')
-})
+const schema = new mongoose.Schema({
+  name: String
+}, { timestamps: true })
 
-test('should configure but not start tracing when not enabled', t => {
-  const trace = new Tracing({ serviceName: 'foo', enabled: false })
-  trace.exporter = new ObjectTraceExporter()
-  trace.start()
-  t.truthy(trace.exporter)
-  t.falsy(trace.propagation)
-})
+const Model = mongoose.model('Data', schema)
 
-test('should configure and start tracing when called', t => {
-  // localhost as just enabling this causes a dns lookup
-  const trace = new Tracing({ serviceName: 'foo', enabled: true, host: 'localhost' })
-  // Force it to use the object exporter so it doesn't contact jaeger
-  trace.exporter = new ObjectTraceExporter()
-  trace.start()
-  t.truthy(trace.exporter)
-  t.truthy(trace.propagation)
-  // Make sure we have access to the tracer
-  t.truthy(trace.tracer)
-})
-
-test('should configure and start tracing when called with env enabled', t => {
-  // localhost as just enabling this causes a dns lookup
-  process.env.TRACING_ENABLED = true
-  let trace = new Tracing({ serviceName: 'foo', host: 'localhost' })
-  t.is(trace.isEnabled(), true)
-  process.env.TRACING_ENABLED = true
-  trace = new Tracing({ serviceName: 'foo', enabled: false, host: 'localhost' })
-  t.is(trace.isEnabled(), false)
-  delete process.env.TRACING_ENABLED
-})
-
-test('should be disabled by default', t => {
-  let trace = new Tracing({ serviceName: 'foo' })
-  t.is(trace.isEnabled(), false)
-  trace = new Tracing({ serviceName: 'foo', enabled: true, host: 'localhost' })
-  t.is(trace.isEnabled(), true)
-})
-
-
-test('should be able to configure debug settings', t => {
-  let trace = new Tracing({ serviceName: 'foo', enabled: true, host: 'localhost' })
-  t.is(trace.config.debug, false)
-  t.is(trace.config.logLevel, undefined)
-  t.is(trace.config.logger, undefined)
-  trace = new Tracing({
-    serviceName: 'foo', enabled: true, debug: true, host: 'localhost'
+test.before(async() => {
+  // initializing tracing takes a few second, we wait for it in this test in order for traces to immediatly available
+  await promise
+  // Setup mongo
+  const randomDbName = Math.random().toString(36).substring(7)
+  const mongoConnectionString = process.env['MONGO_CONNECTION_STRING'] || 'mongodb:27017'
+  await mongoose.connect(`mongodb://${mongoConnectionString}/test-${randomDbName}`, {
+    useFindAndModify: false,
+    useNewUrlParser: true
   })
-  t.is(trace.config.debug, true)
-  t.is(trace.config.logLevel, 5)
-  t.is(trace.config.logger, console)
-  process.env.TRACING_DEBUG = true
-  trace = new Tracing({ serviceName: 'foo' })
-  t.is(trace.config.debug, true)
-  t.is(trace.config.logLevel, 5)
-  t.is(trace.config.logger, console)
 })
 
-test.cb('should have environment attribute test by default', t => {
-  const tracing = new Tracing({
-    serviceName: 'foo', enabled: true
-  })
-  tracing.start()
-  const { tracer } = tracing
-  const rootSpanVerifier = new SpanVerifier()
-  tracer.registerSpanEventListener(rootSpanVerifier)
-  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
-    rootSpan.end()
-    t.deepEqual(rootSpanVerifier.endedSpans[0].attributes, {
-      environment: 'test'
+test.beforeEach(() => {
+  traceExporter.reset()
+})
+
+test.serial('Does create traces for Taube Client/Server requests', async t => {
+  const server = new taube.Server({})
+
+  server.get('/:id', {
+    params: Joi.object().keys({
+      id: Joi.string()
     })
-    t.end()
+  }, (req) => {
+    tracing.addRootSpanAttribute('banana.color', 'yellow')
+    return req.params
   })
+
+  const client = new taube.Client({
+    uri: 'http://localhost'
+  })
+
+  const res = await client.get('/unit-test')
+  t.is(res.id, 'unit-test')
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+
+
+  const requestHandlerSpan = finishedSpans.find(span => span.name == 'GET /:id')
+  t.is(requestHandlerSpan.attributes['http.route'], '/:id')
+  t.is(requestHandlerSpan.attributes['http.target'], '/unit-test')
+  t.is(requestHandlerSpan.attributes['banana.color'], 'yellow', 'should add custom attributes')
+
+  // also sets resources
+  t.is(requestHandlerSpan.resource.attributes['service.name'], 'unit-test-service')
+  t.is(requestHandlerSpan.resource.attributes['deployment.environment'], 'test')
 })
 
-test.cb('should have APP_ENV environment attribute by default', t => {
-  const orgEnv = process.env.APP_ENV
-  process.env.APP_ENV = 'unit-test-overwrite'
-  const tracing = new Tracing({
-    serviceName: 'foo', enabled: true
+test.serial('Does create traces for express requests', async t => {
+  const PORT = 6554
+
+  const app = express()
+
+  const router = new express.Router()
+
+  router.get('/path', async(req, res) => {
+    tracing.addAttribute('banana.color', 'yellow')
+    res.send('')
   })
-  tracing.start()
-  const { tracer } = tracing
-  const rootSpanVerifier = new SpanVerifier()
-  tracer.registerSpanEventListener(rootSpanVerifier)
-  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
-    rootSpan.end()
-    t.deepEqual(rootSpanVerifier.endedSpans[0].attributes, {
-      environment: 'unit-test-overwrite'
+
+  app.use('/router', router)
+
+  let resolve
+  const promise = new Promise(res => resolve = res)
+  const server = app.listen(PORT, () => {
+    console.log(`Listening for requests on http://localhost:${PORT}`)
+    resolve()
+  })
+  await promise
+
+  await got.get(`http://localhost:${PORT}/router/path`)
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+
+  const requestHandlerSpan = finishedSpans.find(span => span.name == 'GET /router/path')
+  t.is(requestHandlerSpan.attributes['http.route'], '/router/path')
+  t.is(requestHandlerSpan.attributes['http.path'], '/router/path', 'added custom attribute http.path')
+  t.is(requestHandlerSpan.attributes['banana.color'], 'yellow', 'should add custom attributes')
+
+  let resolve2
+  const promise2 = new Promise(res => resolve2 = res)
+  server.close(() => {
+    resolve2()
+  })
+  await promise2
+})
+
+test.serial('Does create traces for MONGO queries inside express requests', async t => {
+  const PORT = 6553
+
+  const app = express()
+
+  app.get('/path', async(req, res) => {
+    res.send('')
+    await Model.findOneAndUpdate({
+      name: 'banana'
+    }, {
+      name: 'banana'
+    }, { upsert: true })
+  })
+
+  let resolve
+  const promise = new Promise(res => resolve = res)
+  const server = app.listen(PORT, () => {
+    resolve()
+  })
+  await promise
+
+  await got.get(`http://localhost:${PORT}/path`)
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+
+  const mongoSpan = finishedSpans.find(span => span.name == 'mongoose.Data.findOneAndUpdate')
+  t.truthy(mongoSpan.attributes['net.peer.name'])
+
+  let resolve2
+  const promise2 = new Promise(res => resolve2 = res)
+  server.close(() => {
+    resolve2()
+  })
+  await promise2
+})
+
+test.serial('Does create traces for Taube Queue/worker', async t => {
+  const { Queue, Worker } = taube.QueueWorkerExponentialRetries
+
+  const queue = new Queue('example-queue-1')
+
+  const worker = new Worker('example-queue-1', {
+    worker: {
+      prefetch: 1 // How many messages are consumed/fetched at once
+    },
+    errorHandler: ({
+      error
+    }) =>
+      t.fail(error)
+  })
+
+  let resolve
+  const promise = new Promise(res => resolve = res)
+  worker.consume(async(data) => {
+    tracing.addRootSpanAttribute('banana.color', 'yellow')
+    resolve(data)
+  })
+
+  await queue.enqueue({ some: 'data' })
+  const data = await promise
+
+  t.deepEqual(data, { some: 'data' })
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+  const requestHandlerSpan = finishedSpans.find(span => span.name == 'example-queue-1 process')
+  t.is(requestHandlerSpan.attributes['messaging.rabbitmq.routing_key'], 'example-queue-1')
+  t.is(
+    requestHandlerSpan.attributes['messaging.url'], undefined,
+    'should be removed by custom consumeHook() in AmqplibInstrumentation() configuration'
+  )
+  t.is(requestHandlerSpan.attributes['banana.color'], 'yellow', 'should add custom attributes to trace')
+})
+
+test.serial('Does create traces for mongoose queries', async t => {
+  await Model.findOneAndUpdate({
+    name: 'banana'
+  }, {
+    name: 'banana'
+  }, { upsert: true })
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+
+  const mongoSpan = finishedSpans.find(span => span.name == 'mongoose.Data.findOneAndUpdate')
+  t.truthy(mongoSpan.attributes['net.peer.name'])
+  // eslint-disable-next-line max-len
+  t.is(mongoSpan.attributes['db.statement'], '', 'should be empty if env variable is not passed')
+})
+
+test.serial('currentTraceId() returns value if available', async t => {
+  let resolve
+  const promise = new Promise(res => resolve = res)
+  // fake an active span
+  const span = tracing.tracer.startSpan('currentTraceId() test')
+  api.context.with(api.trace.setSpan(api.context.active(), span), () => {
+    const res = tracing.currentTraceId()
+    resolve(res)
+  })
+  const data = await promise
+  t.is(data.length, 32)
+
+  span.end()
+})
+
+test.serial('currentRootSpan() returns value if available', async t => {
+  t.plan(2)
+  let resolve
+  const promise = new Promise(res => resolve = res)
+  // fake an active span
+  const span = tracing.tracer.startSpan('currentTraceId() test')
+  api.context.with(api.trace.setSpan(api.context.active(), span), () => {
+    const res = tracing.currentRootSpan()
+    const res2 = tracing.currentSpan()
+    t.deepEqual(res, res2)
+    resolve(res)
+  })
+  const data = await promise
+  t.is(data.constructor.name, 'Span')
+
+  span.end()
+})
+
+test.serial('Does create traces for socket.io requests', async t => {
+  const PORT = 4041
+
+  const app = express()
+  const server = http.createServer(app)
+  const ioServer = io(server)
+
+  // wait for server to be listening
+  let resolve
+  const promise = new Promise(res => resolve = res)
+  server.listen(PORT, function() {
+    resolve()
+  })
+  await promise
+
+  /**
+   * The order of events/traces we are looking for:
+   *
+   * 1. Client connect to server => connection event
+   * 2. Server emits "v1/snapshot" => emit event
+   * 3. Client receives and emits "v1/snapshot" => receive event
+   */
+  ioServer.on('connection', function(socket) {
+    socket.on('v1/snapshot', (data, acknowledge) => {
+      acknowledge(data)
     })
-    process.env.APP_ENV = orgEnv
-    t.end()
+    socket.emit('v1/snapshot', { banana: 'yellow' })
   })
-})
 
-test.cb('currentRootSpan() works as expected', t => {
-  const orgEnv = process.env.APP_ENV
-  process.env.APP_ENV = 'unit-test-overwrite'
-  const tracing = new Tracing({
-    serviceName: 'foo', enabled: true
-  })
-  t.is(tracing.currentRootSpan(), undefined, 'should return undefined if tracing not initialized')
-  tracing.start()
-  t.is(tracing.currentRootSpan(), null, 'should return no root span outside of a root span')
+  const client = ioClient.connect(`http://localhost:${PORT}`, { transports: ['websocket'] })
 
-  const { tracer } = tracing
-  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
-    t.is(tracing.currentRootSpan().id, rootSpan.id)
-    t.is(tracing.currentTraceId(), rootSpan.traceIdLocal)
-    rootSpan.end()
-    process.env.APP_ENV = orgEnv
-    t.end()
-  })
-})
-
-
-test.cb('addRootSpanAttribute adds an attribute', t => {
-  const orgEnv = process.env.APP_ENV
-  process.env.APP_ENV = 'unit-test-overwrite'
-  const tracing = new Tracing({
-    serviceName: 'foo', enabled: true
-  })
-  tracing.start()
-  const { tracer } = tracing
-  const rootSpanVerifier = new SpanVerifier()
-  tracer.registerSpanEventListener(rootSpanVerifier)
-  tracer.startRootSpan({ name: 'insertRootSpan' }, function(rootSpan) {
-    const key = 'key123'
-    const value = 'value123'
-    tracing.addRootSpanAttribute(key, value)
-    rootSpan.end()
-    t.deepEqual(rootSpanVerifier.endedSpans[0].attributes, {
-      environment: 'unit-test-overwrite',
-      [key]: value
+  let resolve2
+  const promise2 = new Promise(res => resolve2 = res)
+  client.on('v1/snapshot', (data) => {
+    t.deepEqual(data, { banana: 'yellow' })
+    client.emit('v1/snapshot', { channel: 'v1/snapshot' }, (ack) => {
+      resolve2(ack)
     })
-    process.env.APP_ENV = orgEnv
-    t.end()
   })
+  const res = await promise2
+  t.deepEqual(res, { channel: 'v1/snapshot' })
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+
+  // received a connection
+  const connectSpan = finishedSpans.find(span => span.name == 'connection receive')
+  t.is(connectSpan.attributes['messaging.operation'], 'receive')
+  t.is(connectSpan.attributes['messaging.socket.io.event_name'], 'connection')
+
+  // Emitted the v1/snapshot
+  const serverEmitSpan = finishedSpans.find(span =>
+    span.attributes['messaging.destination_kind'] == 'topic' &&
+    span.attributes['messaging.socket.io.event_name'] == 'v1/snapshot')
+  t.is(serverEmitSpan.attributes['messaging.destination'], '/')
+
+  // Receive v1/snapshot in server
+  const receiveSpan = finishedSpans.find(span => span.name == 'v1/snapshot receive')
+  t.is(receiveSpan.attributes['messaging.socket.io.event_name'], 'v1/snapshot')
 })

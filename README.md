@@ -60,8 +60,7 @@ const config = {
   },
   tracing: {
     enabled: false,
-    host: 'ocagent',
-    port: 55678
+    uri: 'http://otel-collector:55681/v1/trace',
     debug: false
   }
   // Default configuration
@@ -101,9 +100,7 @@ Optional
 |`SENTRY_DEBUG`             | false                 |Can put sentry in debug mode|
 |`SENTRY_DSN`               | `config.sentry.dsn`   |                             |
 |`TRACING_ENABLED`          | false |                             |
-|`TRACING_HOST`          | ocagent |                             |
-|`TRACING_PORT`          | 55678 |                             |
-|`TRACING_DEBUG`          | false |                             |
+|`TRACING_URI`          | http://otel-collector:55681/v1/trace | Otel Collector to send traces to |
 |`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
 |`MONITOR_DOMAIN_FIX_DISABLED` | undefined | If set, the domain fix will not be applied |
 |`FEATURE_FLAGS_DISABLED` | undefined | If set, all Feature Flags will default to `false` and the feature flag client will not initialize. This overwrites initialization by using `init()`. This environment variable is provided in order to manually disable the Feature Flags in case there are any issues with them.  |
@@ -255,30 +252,14 @@ const observability = require('@infrastructure/observability').init({
 })
 ```
 
-You can access the tracer directly:
-
-```js
-const { tracer } = observability.tracing
-// This should happen automatically
-
-tracer.startRootSpan({ name: 'main' }, rootSpan => {
-  const span = tracer.startChildSpan({ name: 'doWork' })
-  span.addAnnotation('invoking doWork')y
-  span.end()
-  // Be sure to call rootSpan.end().
-  rootSpan.end()
-})
-```
-
-You can add an attribute to the current root span using `addRootSpanAttribute`. You can also access the `currentRootSpan` directly. You should check for it to be defined before using it, as it can be not defined outside of a root span:
+You can add an attribute to the current root span using `addAttribute`. You can also access the `currentSpan` directly.
 
 ```js
 // Add an attribute
-observability.tracing.addRootSpanAttribute('tag', 'some tag content')
+observability.tracing.addAttribute('tag', 'some tag content')
 // Direct access to the span
-const span = observability.tracing.currentRootSpan()
+const span = observability.tracing.currentSpan()
 span && span.addAttribute('tag', 'tag content')
-
 ```
 
 Tracing ignores paths starting with the following regex:

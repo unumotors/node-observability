@@ -6,6 +6,7 @@ async function getEndpoints() {
   await got.get('http://localhost:3000/-/readiness')
   await got.get('http://localhost:3000/-/liveness')
   await got.get('http://localhost:3000/-/ping')
+  await got.get('http://localhost:3000/')
 }
 
 getEndpoints()

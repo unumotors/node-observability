@@ -70,6 +70,7 @@ observability.monitoring.addPostControllersMiddlewares(app)
 test.before(async() => {
   server.listen(port)
   await { then(r, f) { server.on('listening', r); server.on('error', f) } }
+  await new Promise(resolve => setTimeout(resolve, 2000)) // wait for tracing
 })
 
 test.serial('Should add trace ids to sentry errors', async t => {
@@ -91,7 +92,6 @@ test.serial('Should add trace ids to sentry errors', async t => {
   await expressMiddlewarePromise
 
   t.truthy(event.tags.trace_id, 'sentry event should contain trace id tag')
-  await observability.tracing.exporter.buffer.flush() // Flush tracings to jaeger
 })
 
 test.serial('Can still do http requests from clients without tracing enabled', async t => {

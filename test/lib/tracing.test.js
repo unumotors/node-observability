@@ -131,6 +131,45 @@ test.serial('Does create traces for express requests', async t => {
   await promise2
 })
 
+test.serial('recordException() does add exception events to traces', async t => {
+  const PORT = 6554
+
+  const app = express()
+
+  app.get('/path', async(req, res) => {
+    tracing.recordException(new Error('some error'))
+    res.send('')
+  })
+
+  let resolve
+  const promise = new Promise(res => resolve = res)
+  const server = app.listen(PORT, () => {
+    console.log(`Listening for requests on http://localhost:${PORT}`)
+    resolve()
+  })
+  await promise
+
+  await got.get(`http://localhost:${PORT}/path`)
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+
+  const requestHandlerSpan = finishedSpans.find(span => span.name == 'GET /path')
+  t.is(requestHandlerSpan.events[0].attributes['exception.message'], 'some error')
+  t.is(requestHandlerSpan.events[0].attributes['exception.type'], 'Error')
+  t.true(requestHandlerSpan.events[0].attributes['exception.stacktrace'].includes('Error: some error'))
+
+  let resolve2
+  const promise2 = new Promise(res => resolve2 = res)
+  server.close(() => {
+    resolve2()
+  })
+  await promise2
+})
+
 test.serial('Does create traces for MONGO queries inside express requests', async t => {
   const PORT = 6553
 

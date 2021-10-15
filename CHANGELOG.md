@@ -1,5 +1,9 @@
 # 1.0.0
 
+* Add recordException() to tracing, which enables recording exceptions
+
+# 1.0.0
+
 * Replaced Opencensus with OpenTelemtry
 
 # 0.4.0

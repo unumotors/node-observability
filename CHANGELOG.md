@@ -1,3 +1,7 @@
+# 1.0.2
+
+* Remove AMQP url from publish traces
+
 # 1.0.1
 
 * Add recordException() to tracing, which enables recording exceptions

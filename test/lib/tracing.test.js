@@ -242,6 +242,14 @@ test.serial('Does create traces for Taube Queue/worker', async t => {
   await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
 
   const finishedSpans = traceExporter.getFinishedSpans()
+
+  // Publish
+  const publishSpan = finishedSpans.find(span => span.name == '<default> -> example-queue-1 send')
+  t.is(
+    publishSpan.attributes['messaging.url'], undefined,
+    'should be removed by custom consumeHook() in AmqplibInstrumentation() configuration'
+  )
+  // Recieve
   const requestHandlerSpan = finishedSpans.find(span => span.name == 'example-queue-1 process')
   t.is(requestHandlerSpan.attributes['messaging.rabbitmq.routing_key'], 'example-queue-1')
   t.is(

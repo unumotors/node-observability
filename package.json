@@ -1,6 +1,6 @@
 {
   "name": "@infrastructure/observability",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "test-coverage": "nyc report --reporter=text --reporter=text-summary"
   },
   "publishConfig": {
-    "registry": "https://npm.unueng.com"
+    "@infrastructure:registry": "https://gitlab.unueng.com/api/v4/projects/476/packages/npm/"
   },
   "files": [
     "/lib"
@@ -48,7 +48,7 @@
     "unleash-client": "^3.9.1"
   },
   "devDependencies": {
-    "@cloud/taube": "^3.3.3",
+    "@cloud/taube": "^3.4.1",
     "@opentelemetry/context-async-hooks": "^1.0.0",
     "ava": "^3.15.0",
     "celebrate": "^15.0.0",

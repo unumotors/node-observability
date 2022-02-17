@@ -6,7 +6,8 @@ const observability = require('../../index').init({
   serviceName: 'david-observability-run-server',
   tracing: {
     enabled: true,
-    uri: 'http://localhost:4318/v1/trace'
+    uri: 'http://localhost:4318/v1/traces',
+    debug: true
   },
   sentry: {
   }

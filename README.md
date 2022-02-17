@@ -100,7 +100,7 @@ Optional
 |`SENTRY_DEBUG`             | false                 |Can put sentry in debug mode|
 |`SENTRY_DSN`               | `config.sentry.dsn`   |                             |
 |`TRACING_ENABLED`          | false |                             |
-|`TRACING_URI`          | http://otel-collector:55681/v1/trace | Otel Collector to send traces to |
+|`TRACING_URI`          | http://otel-collector:4318/v1/trace | Otel Collector to send traces to |
 |`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
 |`MONITOR_DOMAIN_FIX_DISABLED` | undefined | If set, the domain fix will not be applied |
 |`FEATURE_FLAGS_DISABLED` | undefined | If set, all Feature Flags will default to `false` and the feature flag client will not initialize. This overwrites initialization by using `init()`. This environment variable is provided in order to manually disable the Feature Flags in case there are any issues with them.  |
@@ -323,5 +323,5 @@ Running unit tests requires a running mongodb instance without auth.
 
 Run:
 
-- `mongod`
+- `docker-compose up`
 - `npm run test-verbose`

@@ -8,8 +8,13 @@ services:
 
   # Otel collector
   otel-collector:
-    image: otel/opentelemetry-collector:latest
-    command: ["--config=/etc/otel-collector-config.yml", "--log-level=DEBUG"]
+    image: otel/opentelemetry-collector:0.45.0
+    command: ["--config=/etc/otel-collector-config.yml"]
+    environment:
+      # enables getting data into honeycomb for testing
+      # please use development dataset
+      HONEYCOMB_WRITEKEY: bc8e8ac1888b957d2fa8d5e0d30e5f54
+      HONEYCOMB_DATASET: development
     volumes:
       - ./otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:

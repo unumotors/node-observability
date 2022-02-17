@@ -1,17 +1,22 @@
 receivers:
   otlp:
     protocols:
-      grpc:
-      http:
+      grpc: # on port 4317
+      http: # on port 4318
 
 exporters:
   logging:
-  zipkin:
-    endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
-  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/jaegerexporter
   jaeger:
     endpoint: "jaeger-all-in-one:14250"
-    insecure: true
+    tls:
+      insecure: true
+  # https://docs.honeycomb.io/getting-data-in/opentelemetry/otel-collector/
+  otlp:
+    endpoint: "api.honeycomb.io:443"
+    headers:
+      "x-honeycomb-team": "${HONEYCOMB_WRITEKEY}"
+      "x-honeycomb-dataset": "${HONEYCOMB_DATASET}"
+
 
 processors:
   batch:
@@ -25,5 +30,9 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [zipkin, jaeger, logging]
+      exporters: [jaeger, logging, otlp]
       processors: [batch]
+  # enable debug logging
+  telemetry:
+    logs:
+      level: "debug"

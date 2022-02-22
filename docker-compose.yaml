@@ -1,0 +1,40 @@
+version: "3"
+services:
+  # mongo for tests
+  mongo:
+    image: mongo:4.0
+    ports:
+    - "27017:27017"
+
+  # Rabbitmq for tests
+  rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    ports:
+    - "5672:5672"
+
+  # jeager
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686" # frontend
+
+  # Otel collector
+  otel-collector:
+    image: otel/opentelemetry-collector:0.45.0
+    # removed in 0.44 "--log-level=DEBUG"
+    command: ["--config=/etc/otel-collector-config.yml"]
+    environment:
+      # enables getting data into honeycomb for testing
+      # please use development dataset
+      HONEYCOMB_WRITEKEY: bc8e8ac1888b957d2fa8d5e0d30e5f54
+      HONEYCOMB_DATASET: development
+    volumes:
+      - ./test/helpers/otel-collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+    - "4317:4317" # grpc?
+    - "4318:4318" # http?
+    - "9464:9464"
+    - "55680:55680"
+    - "55681:55681"
+    depends_on:
+      - jaeger-all-in-one

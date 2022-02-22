@@ -1,3 +1,18 @@
+# 1.1.0
+
+* Upgrade opentelemtry core libs
+* Upgrade @sentry/node to 6.17.9
+* Upgrade prom-client to 14.0.1
+* Upgrade http-errors to 2.0.0
+* Upgrade prom-client to 14.0.1
+* Updgrade unleash-client to  3.12.0
+
+## Configuration changes
+* requires you to adjust the TRACING_URI from `http://localhost:55681/v1/trace` to `http://localhost:4318/v1/traces` when using collector `0.43.0` https://github.com/open-telemetry/opentelemetry-collector/blob/main/CHANGELOG.md#v0430-beta
+
+* Requires node:14.17
+* Supports node:16
+
 # 1.0.2
 
 * Remove AMQP url from publish traces

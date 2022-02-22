@@ -57,7 +57,7 @@ test('Have a metrics endpoint', async t => {
     .get('/-/metrics').expect('Content-Type', /text\/plain/)
 
   t.is(res.status, 200)
-  t.is(res.text, '')
+  t.is(res.text, '\n')
 })
 
 test('Should allow init and then close', t => {

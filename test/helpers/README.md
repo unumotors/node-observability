@@ -4,7 +4,7 @@ We allow exporting tracing data to a tracing compatible setup.
 
 In order to view/recieve these tracing data we need to run a local setup.
 
-`docker-compose up`
+`docker-compose up` in the parent directory
 
 Should be enough to get a working setup.
 

@@ -6,7 +6,8 @@ const observability = require('../../index').init({
   serviceName: 'david-observability-run-server',
   tracing: {
     enabled: true,
-    uri: 'http://localhost:55681/v1/trace'
+    uri: 'http://localhost:4318/v1/traces',
+    debug: true
   },
   sentry: {
   }
@@ -55,5 +56,6 @@ setTimeout(async() => {
   console.log('starting to listen')
   server.listen(3000)
   await doRequests()
+  console.log(`Open http://localhost:3000 and browse around then`)
   console.log(`Go to http://localhost:16686 and validate the existing traces (see README.md in test/helpers)`)
 }, 1000)

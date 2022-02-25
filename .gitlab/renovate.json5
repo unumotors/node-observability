@@ -1,0 +1,15 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+      "config:base",
+      "local>infrastructure/renovate//rules:node",
+      "local>infrastructure/renovate//rules:platform"
+    ],
+    "packageRules": [
+      {
+        "description": "Create a manual approval process for the following dependencies with breaking changes in the version updates",
+        "matchPackageNames": ["got"],
+        "dependencyDashboardApproval": true
+      }
+    ]
+}

@@ -1,0 +1,10 @@
+# This file defines the code owners for this repository.
+# The specific owners for each file, filetype or directory can then be
+#   notified on any changes to these files.
+#
+# See:
+# https://docs.gitlab.com/ee/user/project/code_owners.html
+#
+
+# Default code owners
+@david @pelzerim

@@ -1,6 +1,6 @@
 # Use node:-alpine as the base image to run tests/building
 # Right now only a single node version is supported
-image: node:14.17-alpine
+image: node:14.19-alpine
 
 include:
   # See template for docs

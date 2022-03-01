@@ -10,7 +10,7 @@
 ## Configuration changes
 * requires you to adjust the TRACING_URI from `http://localhost:55681/v1/trace` to `http://localhost:4318/v1/traces` when using collector `0.43.0` https://github.com/open-telemetry/opentelemetry-collector/blob/main/CHANGELOG.md#v0430-beta
 
-* Requires node:14.17
+* Requires node:14.15
 * Supports node:16
 
 # 1.0.2

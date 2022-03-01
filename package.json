@@ -54,7 +54,7 @@
     "eslint-config-unu": "^1.2.4",
     "express": "^4.17.3",
     "got": "^9.6.0",
-    "mongoose": "^6.2.3",
+    "mongoose": "6.2.4",
     "nyc": "^15.1.0",
     "sinon": "^13.0.1",
     "socket.io": "2.4.1",

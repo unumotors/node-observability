@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@cloud/taube": "^3.4.1",
-    "ava": "^4.0.1",
+    "ava": "4.1.0",
     "celebrate": "^15.0.1",
     "eslint": "8.10.0",
     "eslint-config-unu": "^1.2.4",

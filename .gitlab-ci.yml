@@ -12,9 +12,6 @@ include:
     ref: master
     file: '/npm/0.2-template.yml'
 
-variables:
-  TAUBE_AMQP_URI: "amqp://guest:guest@localhost"
-
 services:
   - name: mongo:4.0
     alias: mongodb

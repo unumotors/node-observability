@@ -319,7 +319,7 @@ It may take a few seconds until node-observability did pull the data from Gitlab
 
 ### Running tests
 
-Running unit tests requires a running mongodb instance without auth.
+Running unit tests requires a running mongodb instance without auth and a docker instance:
 
 Run:
 

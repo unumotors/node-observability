@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "test": "nyc --all ava --verbose --tap | tap-xunit > results.xml",
-    "test-verbose": "TAUBE_AMQP_URI=amqp://guest:guest@localhost nyc --all ava",
+    "test-verbose": "nyc --all ava",
     "test-coverage": "nyc report --reporter=text --reporter=text-summary"
   },
   "publishConfig": {
@@ -47,7 +47,7 @@
     "unleash-client": "^3.12.0"
   },
   "devDependencies": {
-    "@cloud/taube": "^3.4.1",
+    "@cloud/taube": "4.0.4",
     "ava": "4.1.0",
     "celebrate": "^15.0.1",
     "eslint": "8.12.0",

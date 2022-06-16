@@ -22,7 +22,7 @@ tracing.start().then(resolve)
 const taube = require('@cloud/taube')
 const mongoose = require('mongoose')
 
-taube.amqp.init()
+taube.http.init()
 
 const schema = new mongoose.Schema({
   name: String

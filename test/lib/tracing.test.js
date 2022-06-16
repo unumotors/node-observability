@@ -27,8 +27,7 @@ const http = require('http')
 const io = require('socket.io')
 const ioClient = require('socket.io-client')
 
-
-taube.amqp.init()
+taube.http.init()
 
 const schema = new mongoose.Schema({
   name: String
@@ -212,12 +211,15 @@ test.serial('Does create traces for MONGO queries inside express requests', asyn
 test.serial('Does create traces for Taube Queue/worker', async t => {
   const { Queue, Worker } = taube.QueueWorkerExponentialRetries
 
-  const queue = new Queue('example-queue-1')
+  const queue = new Queue('example-queue-1', {
+    brokerUri: 'amqp://guest:guest@localhost'
+  })
 
   const worker = new Worker('example-queue-1', {
     worker: {
       prefetch: 1 // How many messages are consumed/fetched at once
     },
+    brokerUri: 'amqp://guest:guest@localhost',
     errorHandler: ({
       error
     }) =>

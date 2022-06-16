@@ -8,9 +8,19 @@ services:
 
   # Rabbitmq for tests
   rabbitmq:
-    image: rabbitmq:3.8-management-alpine
+    image: r.unueng.com/cloud/rabbitmq-plugins:3.9-1
     ports:
-    - "5672:5672"
+      - '5551:5551'
+      - '5552:5552'
+      - '25672:25672'
+      - '5672:5672' # AMQP
+      - '5671:5671' # AMQPS
+      - '15672:15672' # management ui
+      - '8883:8883' # MQTTS
+      - '1883:1883' # MQTT
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
 
   # jeager
   jaeger-all-in-one:

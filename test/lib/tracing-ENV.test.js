@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable global-require */
 process.env.TRACING_CAPTURE_MONGO_QUERIES_ENABLED = 'true'
+process.env.TRACING_EXPRESS_ENABLED = 'true'
 
 const test = require('ava')
 
@@ -21,6 +22,7 @@ tracing.start().then(resolve)
 
 const taube = require('@cloud/taube')
 const mongoose = require('mongoose')
+const { Joi } = require('celebrate')
 
 taube.http.init()
 
@@ -62,3 +64,31 @@ test.serial('TRACING_CAPTURE_MONGO_QUERIES_ENABLED does add full mongo queries',
   t.is(mongoSpan.attributes['db.statement'], 'findOneAndUpdate: {"condition":{"name":"banana"},"updates":{"name":"banana","$setOnInsert":{"__v":0}},"options":{"upsert":true}}')
 })
 
+test.serial('TRACING_EXPRESS_ENABLED does add traces for express requests', async t => {
+  const server = new taube.Server({})
+
+  server.get('/:id', {
+    params: Joi.object().keys({
+      id: Joi.string()
+    })
+  }, (req) => {
+    tracing.addRootSpanAttribute('banana.color', 'yellow')
+    return req.params
+  })
+
+  const client = new taube.Client({
+    uri: 'http://localhost'
+  })
+
+  const res = await client.get('/unit-test')
+  t.is(res.id, 'unit-test')
+
+  await new Promise(resolve => setTimeout(resolve, 1000)) // flaky otherwise
+  // Make the internal batch processor send the traces immediately (and not wait for 5 seconds)
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
+
+  const finishedSpans = traceExporter.getFinishedSpans()
+
+  const requestHandlerSpan = finishedSpans.find(span => span.name == 'GET /:id')
+  t.is(requestHandlerSpan.attributes['http.route'], '/:id')
+})

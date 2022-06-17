@@ -1,3 +1,7 @@
+# 1.2.0
+
+* Remove express from tracing by default
+
 # 1.1.0
 
 * Upgrade opentelemtry core libs

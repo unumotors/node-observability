@@ -96,10 +96,11 @@ Optional
 |Name                       |Default                | Description |
 |---------------------------|-----------------------|-------------|
 |`DD_SERVICE_NAME`          | `config.serviceName`  |                                 |
-|`MONITORING_PORT`          | 9090                  |Set monitoring server to custom value|
-|`SENTRY_DEBUG`             | false                 |Can put sentry in debug mode|
+|`MONITORING_PORT`          | 9090                  | Set monitoring server to custom value|
+|`SENTRY_DEBUG`             | false                 | Can put sentry in debug mode|
 |`SENTRY_DSN`               | `config.sentry.dsn`   |                             |
 |`TRACING_ENABLED`          | false |                             |
+|`TRACING_EXPRESS_ENABLED`          | false | If tracing is enabled for Express requests                           |
 |`TRACING_URI`          | http://otel-collector:4318/v1/trace | Otel Collector to send traces to |
 |`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
 |`MONITOR_DOMAIN_FIX_DISABLED` | undefined | If set, the domain fix will not be applied |
@@ -271,6 +272,11 @@ All traces have a default attribute "environment". Defaults to "development" and
 
 To test locally, you can follow the steps described [here](./test/helpers/README.md)
 
+
+#### Express tracing
+
+Express traces are disabled by default. To enable them, set the `TRACING_EXPRESS_ENABLED` variable.
+
 ### Feature flags
 
 A wrapper around [GitLab Feature Flags](https://docs.gitlab.com/ee/operations/feature_flags.html) is provided.
@@ -319,7 +325,7 @@ It may take a few seconds until node-observability did pull the data from Gitlab
 
 ### Running tests
 
-Running unit tests requires a running mongodb instance without auth and a docker instance:
+Running unit tests requires a running mongodb instance without auth and a rabbitmq instance:
 
 Run:
 

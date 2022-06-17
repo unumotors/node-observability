@@ -77,7 +77,6 @@ test.serial('Does create traces for Taube Client/Server requests', async t => {
 
 
   const requestHandlerSpan = finishedSpans.find(span => span.name == 'GET /:id')
-  t.is(requestHandlerSpan.attributes['http.route'], '/:id')
   t.is(requestHandlerSpan.attributes['http.target'], '/unit-test')
   t.is(requestHandlerSpan.attributes['banana.color'], 'yellow', 'should add custom attributes')
 
@@ -117,9 +116,11 @@ test.serial('Does create traces for express requests', async t => {
   const finishedSpans = traceExporter.getFinishedSpans()
 
   const requestHandlerSpan = finishedSpans.find(span => span.name == 'GET /router/path')
-  t.is(requestHandlerSpan.attributes['http.route'], '/router/path')
   t.is(requestHandlerSpan.attributes['http.path'], '/router/path', 'added custom attribute http.path')
   t.is(requestHandlerSpan.attributes['banana.color'], 'yellow', 'should add custom attributes')
+
+  // express is disabled by default
+  t.is(requestHandlerSpan.attributes['http.route'], undefined)
 
   let resolve2
   const promise2 = new Promise(res => resolve2 = res)

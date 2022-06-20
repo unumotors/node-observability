@@ -47,7 +47,7 @@
     "unleash-client": "^3.12.0"
   },
   "devDependencies": {
-    "@cloud/taube": "4.0.4",
+    "@cloud/taube": "4.0.5",
     "ava": "4.1.0",
     "celebrate": "^15.0.1",
     "eslint": "8.12.0",

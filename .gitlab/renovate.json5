@@ -3,7 +3,8 @@
     "extends": [
       "config:base",
       "local>infrastructure/renovate:node",
-      "local>infrastructure/renovate:platform"
+      "local>infrastructure/renovate:platform",
+      "local>infrastructure/renovate:cloud"
     ],
     "packageRules": [
       {

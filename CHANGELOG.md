@@ -1,3 +1,7 @@
+# 1.3.0
+
+* Update packages to latest minor versions
+
 # 1.2.0
 
 * Remove express from tracing by default

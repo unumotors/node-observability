@@ -20,7 +20,7 @@ services:
 
 # Verify our code works with multiple node versions
 test-node16:
-  image: node:16.14-alpine
+  image: node:16.15-alpine
   stage: test
   script:
   - npm i

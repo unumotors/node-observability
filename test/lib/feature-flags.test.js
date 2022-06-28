@@ -108,13 +108,16 @@ test.serial('FeatureFlags required parameters can be passed using env variables'
 
   process.env.FEATURE_FLAGS_INSTANCE_ID = 'instance-id'
   process.env.FEATURE_FLAGS_URL = 'url'
+  process.env.FEATURE_FLAGS_UNLEASH_OPTIONS = '{"metricsInterval":6000,"httpOptions":{}}'
 
   featureFlags.init({})
 
   t.deepEqual(unleashInitiationStub.firstCall.lastArg, {
     appName: 'test',
     instanceId: 'instance-id',
-    url: 'url'
+    url: 'url',
+    metricsInterval: 6000,
+    httpOptions: {}
   })
 
   t.deepEqual(featureFlags.unleash, { fake: 'client' })

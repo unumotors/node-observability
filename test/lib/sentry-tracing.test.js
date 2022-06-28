@@ -1,11 +1,18 @@
 // Disable auto init in unit tests
 process.env.NODE_ENV = 'not-test-or-development'
+process.env.OBSERVABILITY_SERVICE_NAME = 'david-observability-run-server'
+process.env.TRACING_ENABLED = true
+process.env.TRACING_URI = 'localhost'
+// do not reference an env variable
+// we need to use the same sentry dsn across envs
+process.env.SENTRY_DSN = 'https://c71e3c706d914df387610041a232f969@sentry.io/1546792'
+process.env.UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED = true
 
 const test = require('ava')
 const got = require('got')
 const http = require('http')
 const express = require('express')
-const observability = require('../../index')
+const Observability = require('../../lib/observability')
 const { Sentry } = require('../../lib/sentry')
 const EventEmitter = require('events')
 const { spawn } = require('child_process')
@@ -21,25 +28,10 @@ function beforeSend(event) {
   return null // Disable sentry error sending for this test
 }
 
-observability.init({
-  // Globally configured service name
-  // DO NOT prefix by env
-  serviceName: 'david-observability-run-server',
-  // to figure out default configs
-  // debug: true,
-  // logLevel: 5,
-  tracing: {
-    enabled: true,
-    host: 'localhost'
-    // port: 55678
-  },
-  unhandledRejection: {
-    exitOnError: true
-  },
-  // do not reference an env variable
-  // we need to use the same sentry dsn across envs
-  sentry: { // Hard coded on purpose
-    dsn: 'https://c71e3c706d914df387610041a232f969@sentry.io/1546792',
+// beforeSend needs to be manually set because we don't allow
+// passing this in with the init config
+const observability = new Observability().init({
+  sentry: {
     beforeSend
   }
 })

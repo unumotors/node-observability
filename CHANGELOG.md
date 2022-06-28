@@ -1,3 +1,35 @@
+# 2.0.0
+
+### Breaking changes
+
+* Initialize observability before package import
+* Remove API support for sentry.beforeSend
+
+### Migrate to v2
+
+* Set environment variables for initializing service. Following is the minimum configuration that is required (see https://gitlab.unueng.com/infrastructure/node-observability#env-settings for all env settings):
+```yaml
+env:
+- name: OBSERVABILITY_SERVICE_NAME
+  value: "__SERVICE_NAME__"
+- name: SENTRY_DSN
+  value: "__PUBLIC_DSN__"
+```
+
+* Remove call to initialize observability in service
+```js
+// Before
+const observability = require('@infrastructure/observability').init({
+  serviceName: '__SERVICE_NAME__', // DO NOT prefix by env
+  sentry: {
+    dsn: '__SENTRY_DSN__',
+  },
+})
+
+// After
+const observability = require('@infrastructure/observability')
+```
+
 # 1.3.0
 
 * Update packages to latest minor versions

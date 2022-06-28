@@ -17,27 +17,30 @@ See Table of Contents
 
 In the first line of your `index.js` include the following. This is because our tracing library auto instruments all other requires
 
-Minimum configuration to get going.
+Minimum configuration to get going:
 ```js
 // Needs to be the first thing included in your application
-const observability = require('@infrastructure/observability').init({
-  // Globally configured service name
-  // DO NOT prefix by env
-  // ENV is auto configured via APP_ENV
-  serviceName: 'david-observability-run-server',
-  sentry: {
-    dsn: '__PUBLIC_DSN__'
-  }
-})
+require('@infrastructure/observability')
+```
+
+```yaml
+env:
+# Globally configured service name
+# DO NOT prefix by env
+# ENV is auto configured via APP_ENV
+- name: OBSERVABILITY_SERVICE_NAME
+  value: david-observability-run-server
+- name: SENTRY_DSN
+  value: "__PUBLIC_DSN__"
 ```
 
 
 ## Configuration
 Currently there are limited configuration options provided, This in intentional in an attempt standardize this across our projects.
 
-The limited options that are provided can either be configured via standard ENV variables or via code. (full docs to follow)
+The limited options that are provided can either be configured via standard ENV variables only (below is a codified example for tests only):
 
-Full configuration options
+Full configuration options (Do not use this! Pass env variables instead):
 ```js
 const config = {
   // Globally configured service name
@@ -95,7 +98,7 @@ Optional
 
 |Name                       |Default                | Description |
 |---------------------------|-----------------------|-------------|
-|`DD_SERVICE_NAME`          | `config.serviceName`  |                                 |
+|`OBSERVABILITY_SERVICE_NAME`          | `config.serviceName`  |                                 |
 |`MONITORING_PORT`          | 9090                  | Set monitoring server to custom value|
 |`SENTRY_DEBUG`             | false                 | Can put sentry in debug mode|
 |`SENTRY_DSN`               | `config.sentry.dsn`   |                             |
@@ -104,6 +107,7 @@ Optional
 |`TRACING_URI`          | http://otel-collector:4318/v1/trace | Otel Collector to send traces to |
 |`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
 |`MONITOR_DOMAIN_FIX_DISABLED` | undefined | If set, the domain fix will not be applied |
+|`UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED` | false | If set, disables exit with an error on unhandled promises. |
 |`FEATURE_FLAGS_DISABLED` | undefined | If set, all Feature Flags will default to `false` and the feature flag client will not initialize. This overwrites initialization by using `init()`. This environment variable is provided in order to manually disable the Feature Flags in case there are any issues with them.  |
 |`FEATURE_FLAGS_INSTANCE_ID` | undefined | Sets the Feature Flags instance id. |
 |`FEATURE_FLAGS_URL` | undefined | Sets the Feature Flags url. |
@@ -212,15 +216,7 @@ This is useful because in development there is no `Sentry` and sentry installs a
 
 Its better to exit cleanly than potentially land up in a state where nothing is working as expected.
 
-This behavior can be disabled if needed by passing the following to `init`
-
-```js
-{
-  unhandledRejection: {
-    exitOnError: false
-  }
-}
-```
+This behavior can be disabled if needed by enabling the `UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED` env variable.
 
 
 ### Metrics
@@ -232,7 +228,7 @@ The custom monitoring server listens on port `:9090` that exposes `/-/metrics` a
 `observability.metrics` is just an instance of `prom-client` so any thing you could do with the official library you can do here.
 
 ```js
-const observability = require('@infrastructure/observability').init({})
+require('@infrastructure/observability')
 // returns metricsClient is an instance of prom-client.client
 const connectedGauge = new observability.metrics.Gauge({ name: 'unu_bot_slack_connected', help: 'If unu-bot is connected to slack' })
 connectedGauge.set(0)
@@ -241,17 +237,7 @@ connectedGauge.set(0)
 ### Tracing
 Supports exporting trace data to opencencus compatible server.
 
-You activate tracing manually or per via `TRACING_ENABLED=true` env flag:
-
-```js
-const observability = require('@infrastructure/observability').init({
-  serviceName: 'foo',
-  // Manually activating tracing
-  tracing: {
-    enabled: true
-  }
-})
-```
+You activate tracing per env via `TRACING_ENABLED=true` env flag.
 
 You can add an attribute to the current root span using `addAttribute`. You can also access the `currentSpan` directly.
 
@@ -283,22 +269,20 @@ A wrapper around [GitLab Feature Flags](https://docs.gitlab.com/ee/operations/fe
 
 Feature flags are scoped per repository and needed to be [configured in Gitlab](https://docs.gitlab.com/ee/operations/feature_flags.html). After the configuration, an `instanceId` and an `url` are provided by GitLab.
 
-In order to configure `node-observability`, pass the `url` and the `instanceId` into the root `init()` function:
+In order to configure feature flags, set the `FEATURE_FLAGS_INSTANCE_ID` and `FEATURE_FLAGS_URL` env variables.
 
-```js
-const config = {
-  // ... all other options
-  featureFlags: {
-    // Random id generated by Gitlab
-    instanceId: '__INSTANCE_ID__',
-    // URL of Gitlab Feature flags
-    url: '__URL__',
-    // Raw options for the unleash client. Can be any of
-    // https://github.com/Unleash/unleash-client-node#advanced-usage
-    unleashOptions: {}
-  }
-}
-const observability = require('@infrastructure/observability').init(config)
+```yml
+env:
+# Random id generated by Gitlab
+- name: FEATURE_FLAGS_INSTANCE_ID
+  value: '__INSTANCE_ID__'
+# URL of Gitlab Feature flags
+- name: FEATURE_FLAGS_URL
+  value: '__URL__'
+# Raw options for the unleash client. Can be any of
+# https://github.com/Unleash/unleash-client-node#advanced-usage
+- name: FEATURE_FLAGS_UNLEASH_OPTIONS
+  value: '{"option1":"option1","option2":"option2"}'
 ```
 
 Internally, this feature uses the `unleash-client` library. An optional `unleashOptions` can be passed in. It will overwrite all generated options. All valid values can be found [here](https://github.com/Unleash/unleash-client-node#advanced-usage).
@@ -330,4 +314,4 @@ Running unit tests requires a running mongodb instance without auth and a rabbit
 Run:
 
 - `docker-compose up`
-- `npm run test-verbose`
+- `MONGO_CONNECTION_STRING='localhost:27017' npm run test-verbose`

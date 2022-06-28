@@ -1,17 +1,12 @@
 /* eslint-disable no-await-in-loop */
 // Enable extensive mongo tracing
 process.env.TRACING_CAPTURE_MONGO_QUERIES_ENABLED = true
+process.env.OBSERVABILITY_SERVICE_NAME = 'david-observability-run-server'
+process.env.TRACING_ENABLED = true
+process.env.TRACING_URI = 'http://localhost:4318/v1/traces'
+process.env.TRACING_DEBUG = true
 
-const observability = require('../../index').init({
-  serviceName: 'david-observability-run-server',
-  tracing: {
-    enabled: true,
-    uri: 'http://localhost:4318/v1/traces',
-    debug: true
-  },
-  sentry: {
-  }
-})
+const observability = require('../../index')
 const { fork } = require('child_process')
 
 const http = require('http')

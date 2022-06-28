@@ -14,6 +14,8 @@ Jeager UI http://localhost:16686
 
 ## Test process
 
-After you have a setup using `docker-compose up` run `node run-server.js` and go through these manual steps:
+After you have a setup using `docker-compose up` run:
+* `cd test/helpers`
+* `node run-server.js` and go through these manual steps:
 
 1. Get traces. There should only be one trace. No traces for /-/readiness, /-/liveness, /-/ping and /ping

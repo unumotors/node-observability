@@ -307,7 +307,7 @@ It may take a few seconds until node-observability did pull the data from Gitlab
 
 **Try to always pass in a context if possible. Always document the Feature Flag in the README.md of the project. Stick to the above naming convention (lowercase, separation by `_`)**
 
-### Running tests
+### Running unit tests
 
 Running unit tests requires a running mongodb instance without auth and a rabbitmq instance:
 
@@ -315,3 +315,7 @@ Run:
 
 - `docker-compose up`
 - `MONGO_CONNECTION_STRING='localhost:27017' npm run test-verbose`
+
+### Running manual tests
+
+Follow the steps in `test/helpers/README.md` to manually test any changes

@@ -13,7 +13,7 @@ include:
     file: '/npm/0.2-template.yml'
 
 services:
-  - name: mongo:4.0
+  - name: mongo:5.0
     alias: mongodb
   - name: rabbitmq:3.8-management-alpine
     alias: rabbitmq

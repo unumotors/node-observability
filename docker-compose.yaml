@@ -2,7 +2,7 @@ version: "3"
 services:
   # mongo for tests
   mongo:
-    image: mongo:4.0
+    image: mongo:5.0
     ports:
     - "27017:27017"
 

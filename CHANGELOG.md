@@ -1,3 +1,7 @@
+## @sentry/node to v7
+
+* Updates @sentry/node to v7
+
 ## Mongo 5
 
 * Remove support for Mongo 4 and only support Mongo 5 and up

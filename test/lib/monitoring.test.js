@@ -21,13 +21,13 @@ test('Should return a object', t => {
 
 test('Should init with default values', t => {
   // this is the default but lets be explicit
-  t.context.sinon.stub(process.env, 'NODE_ENV').value('test')
+  process.env.NODE_ENV = 'test'
   let monitor = new MonitorServer()
   t.is(monitor.config.port, 9090)
   // false in unit tests
   t.is(monitor.config.enabled, false)
 
-  t.context.sinon.stub(process.env, 'NODE_ENV').value('development')
+  process.env.NODE_ENV = 'development'
   monitor = new MonitorServer()
   // enabled for any thing other than test
   t.is(monitor.config.enabled, true)
@@ -42,7 +42,7 @@ test('Should init with passed values', t => {
   let monitor = new MonitorServer({ port: 8080 })
   t.is(monitor.config.port, 8080)
 
-  t.context.sinon.stub(process.env, 'NODE_ENV').value('development')
+  process.env.NODE_ENV = 'development'
   monitor = new MonitorServer({ enabled: true })
   // enabled for any thing other than test
   t.is(monitor.config.enabled, true)
@@ -69,7 +69,7 @@ test('Should allow init and then close', t => {
 })
 
 test('given the unit tests we should not open the port for monitoring server', t => {
-  t.context.sinon.stub(process.env, 'NODE_ENV').value('test')
+  process.env.NODE_ENV = 'test'
   const monitor = new MonitorServer()
   const server = http.createServer()
   server.listen = () => t.fail('should not call listen in NODE_ENV=test')
@@ -81,7 +81,7 @@ test('given the unit tests we should not open the port for monitoring server', t
 
 test('given development env we should start listening on default port', t => {
   t.plan(1)
-  t.context.sinon.stub(process.env, 'NODE_ENV').value('development')
+  process.env.NODE_ENV = 'development'
   const monitor = new MonitorServer()
   const server = http.createServer()
   server.listen = (port) => t.is(port, 9090)
@@ -92,7 +92,7 @@ test('given development env we should start listening on default port', t => {
 
 test('given production env we should start listening on default port', t => {
   t.plan(1)
-  t.context.sinon.stub(process.env, 'NODE_ENV').value('production')
+  process.env.NODE_ENV = 'production'
   const monitor = new MonitorServer()
   const server = http.createServer()
   server.listen = (port) => t.is(port, 9090)

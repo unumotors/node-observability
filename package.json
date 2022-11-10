@@ -1,12 +1,13 @@
 {
   "name": "@infrastructure/observability",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "test": "nyc --all ava --verbose --tap | tap-xunit > results.xml",
+    "test-dev": "ava --verbose",
     "test-verbose": "nyc --all ava",
     "test-coverage": "nyc report --reporter=text --reporter=text-summary"
   },

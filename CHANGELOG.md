@@ -1,10 +1,8 @@
-## @sentry/node to v7
+# 2.0.1
 
 * Updates @sentry/node to v7
-
-## Mongo 5
-
 * Remove support for Mongo 4 and only support Mongo 5 and up
+* Remove tracing for gitlab feature flags
 
 # 2.0.0
 

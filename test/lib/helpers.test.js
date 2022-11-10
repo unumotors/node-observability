@@ -108,3 +108,11 @@ test('should not match /foo/-/bar URL', t => {
 test('should not match /foo/-/bar/ URL', t => {
   t.notRegex('/foo/-/bar/', helpers.tracingFilterRegex[1])
 })
+
+test('should match /api/v4/feature_flags/unleash/673/client/features URL', t => {
+  t.regex('/api/v4/feature_flags/unleash/673/client/features', helpers.tracingFilterRegex[2])
+})
+
+test('should not match /banana/api/v4/feature_flags/unleash/673/client/features URL', t => {
+  t.notRegex('/banana/api/v4/feature_flags/unleash/673/client/features', helpers.tracingFilterRegex[2])
+})

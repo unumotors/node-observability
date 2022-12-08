@@ -1,3 +1,4 @@
+/* eslint-disable no-promise-executor-return */
 // Disable auto init in unit tests
 process.env.NODE_ENV = 'not-test-or-development'
 process.env.OBSERVABILITY_SERVICE_NAME = 'david-observability-run-server'
@@ -12,10 +13,10 @@ const test = require('ava')
 const got = require('got')
 const http = require('http')
 const express = require('express')
-const Observability = require('../../lib/observability')
-const { Sentry } = require('../../lib/sentry')
 const EventEmitter = require('events')
 const { spawn } = require('child_process')
+const Observability = require('../../lib/observability')
+const { Sentry } = require('../../lib/sentry')
 
 // emitter for emitting events to the tests
 class SentryError extends EventEmitter {}
@@ -32,8 +33,8 @@ function beforeSend(event) {
 // passing this in with the init config
 const observability = new Observability().init({
   sentry: {
-    beforeSend
-  }
+    beforeSend,
+  },
 })
 
 const app = express()
@@ -62,10 +63,10 @@ observability.monitoring.addPostControllersMiddlewares(app)
 test.before(async() => {
   server.listen(port)
   await { then(r, f) { server.on('listening', r); server.on('error', f) } }
-  await new Promise(resolve => setTimeout(resolve, 2000)) // wait for tracing
+  await new Promise((resolve1) => setTimeout(resolve1, 2000)) // wait for tracing
 })
 
-test.serial('Should add trace ids to sentry errors', async t => {
+test.serial('Should add trace ids to sentry errors', async(t) => {
   const eventPromise = new Promise((resolve) => {
     sentryEmitter.on('event', (event) => {
       resolve(event)
@@ -86,20 +87,20 @@ test.serial('Should add trace ids to sentry errors', async t => {
   t.truthy(event.tags.trace_id, 'sentry event should contain trace id tag')
 })
 
-test.serial('Can still do http requests from clients without tracing enabled', async t => {
-  var process = spawn('node', ['test/helpers/get-localhost.js'])
+test.serial('Can still do http requests from clients without tracing enabled', async(t) => {
+  const process = spawn('node', ['test/helpers/get-localhost.js'])
   process.stdout.on('data', (data) => {
     t.is(Number(`${data}`), 200)
   })
 
-  process.stderr.on('data', (data) => {
-    t.fail(data)
+  process.stderr.on('data', () => {
+    t.fail('should have not gotten here')
   })
 
-  await new Promise(resolve => {
-    process.on('exit', function(code, signal) {
-      console.log('child process exited with ' +
-                  `code ${code} and signal ${signal}`)
+  await new Promise((resolve) => {
+    process.on('exit', (code, signal) => {
+      console.log('child process exited with '
+                  + `code ${code} and signal ${signal}`)
       resolve()
     })
   })

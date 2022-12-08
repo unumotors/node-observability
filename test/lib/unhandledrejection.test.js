@@ -1,12 +1,12 @@
 const test = require('ava')
-const UnhandledRejection = require('../../lib/unhandledrejection')
 const Sentry = require('@sentry/node')
+const UnhandledRejection = require('../../lib/unhandledrejection')
 
-test('return type of UnhandledRejection', t => {
+test('return type of UnhandledRejection', (t) => {
   t.truthy(UnhandledRejection)
 })
 
-test('Registers global handler by default', async t => {
+test('Registers global handler by default', (t) => {
   t.plan(2)
   const temp = process.on
   process.on = function(name, callback) {
@@ -20,7 +20,7 @@ test('Registers global handler by default', async t => {
 
 // I tried adding a test for code inside the block but its hard since ava catches unhandled exceptions
 
-test('Allow disabling UnhandledRejection handler exiting', async t => {
+test('Allow disabling UnhandledRejection handler exiting', (t) => {
   t.plan(4)
   const x = new UnhandledRejection()
   const temp = process.exit
@@ -31,8 +31,8 @@ test('Allow disabling UnhandledRejection handler exiting', async t => {
     t.is(msg, 'exit error')
     t.truthy(err)
   }
-  process.exit = function(code) {
-    t.fail(code, 'was called')
+  process.exit = function() {
+    t.fail('should not have been called')
   }
 
   x.init({ exitOnError: false })
@@ -42,8 +42,7 @@ test('Allow disabling UnhandledRejection handler exiting', async t => {
   t.pass()
 })
 
-
-test('Sentry should clear its queues before exiting', async t => {
+test('Sentry should clear its queues before exiting', async(t) => {
   Sentry.init()
   t.plan(6)
   const x = new UnhandledRejection()
@@ -73,7 +72,7 @@ test('Sentry should clear its queues before exiting', async t => {
   t.pass()
 })
 
-test('exits with error code when enabled (passed value)', async t => {
+test('exits with error code when enabled (passed value)', async(t) => {
   t.plan(4)
   const x = new UnhandledRejection()
 
@@ -96,7 +95,7 @@ test('exits with error code when enabled (passed value)', async t => {
   console.warn = logTemp
 })
 
-test('exit by default', async t => {
+test('exit by default', (t) => {
   t.plan(1)
   const x = new UnhandledRejection()
 

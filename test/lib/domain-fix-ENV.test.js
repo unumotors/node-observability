@@ -1,13 +1,13 @@
 const test = require('ava')
 const MonitorServer = require('../../lib/monitoring')
 
-test('addPreControllersMiddlewares does not add domain fix if MONITOR_DOMAIN_FIX_DISABLED is set', t => {
+test('addPreControllersMiddlewares does not add domain fix if MONITOR_DOMAIN_FIX_DISABLED is set', (t) => {
   const server = {
-    listening: false
+    listening: false,
   }
   const app = {
     use: () => {
-    }
+    },
   }
 
   process.env.MONITOR_DOMAIN_FIX_DISABLED = true

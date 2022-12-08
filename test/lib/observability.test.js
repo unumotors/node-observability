@@ -1,6 +1,6 @@
 const test = require('ava')
-const Observability = require('../../lib/observability')
 const sinon = require('sinon')
+const Observability = require('../../lib/observability')
 
 const defaultConfig = { serviceName: 'foo' }
 
@@ -8,7 +8,7 @@ test.afterEach(() => {
   sinon.restore()
 })
 
-test.serial('Should throw an error if already initialized', async t => {
+test.serial('Should throw an error if already initialized', async(t) => {
   const index = new Observability()
   index.init(defaultConfig)
   await index.monitoring.close()
@@ -19,7 +19,7 @@ test.serial('Should throw an error if already initialized', async t => {
   await index.monitoring.close()
 })
 
-test.serial('Should setup correct instance methods', t => {
+test.serial('Should setup correct instance methods', (t) => {
   const index = new Observability()
   t.falsy(index.Sentry)
   t.falsy(index.metrics)
@@ -35,24 +35,25 @@ test.serial('Should setup correct instance methods', t => {
   t.is(index.featureFlags.disabled, true, 'feature flags init() should have been called')
 })
 
-test.serial('FeatureFlags works end to end', t => {
+test.serial('FeatureFlags works end to end', (t) => {
   const index = new Observability()
 
   const featureFlagOptions = {
     instanceId: 'instance-id',
-    url: 'https://gitlab.unueng.com/api/v4/feature_flags/unleash/XXX' // fake url
+    url: 'https://gitlab.unueng.com/api/v4/feature_flags/unleash/XXX', // fake url
   }
 
   index.init({
     ...defaultConfig,
-    featureFlags: featureFlagOptions
+    featureFlags: featureFlagOptions,
   })
 
   // A fake just wraps the real function without changing what it does
   // https://sinonjs.org/releases/v11.1.2/fakes/
   const isEnabledFake = sinon.replace(
-    index.featureFlags.unleash, 'isEnabled',
-    sinon.fake(index.featureFlags.unleash.isEnabled)
+    index.featureFlags.unleash,
+    'isEnabled',
+    sinon.fake(index.featureFlags.unleash.isEnabled),
   )
 
   const isEnabled = index.featureFlags.isEnabled('some_feature', { userId: 'auth0|user@unumotors.com' })

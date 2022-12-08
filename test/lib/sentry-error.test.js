@@ -5,14 +5,14 @@ const test = require('ava')
 const http = require('http')
 const request = require('supertest')
 const express = require('express')
-const MonitorServer = require('../../lib/monitoring')
-const sentry = require('../../lib/sentry')
 const createError = require('http-errors')
 const EventEmitter = require('events')
+const MonitorServer = require('../../lib/monitoring')
+const sentry = require('../../lib/sentry')
 
 const emitter = new EventEmitter()
 
-test.serial('Should create a Sentry alert if HTTP response code is 5xx', async t => {
+test.serial('Should create a Sentry alert if HTTP response code is 5xx', async(t) => {
   const beforeSend = (event) => {
     emitter.emit('event', event)
     return null // Disable sending Sentry error
@@ -20,7 +20,7 @@ test.serial('Should create a Sentry alert if HTTP response code is 5xx', async t
 
   sentry.init({
     dsn: 'https://na@sentry.io/1234',
-    beforeSend
+    beforeSend,
   })
 
   const app = express()
@@ -52,7 +52,7 @@ test.serial('Should create a Sentry alert if HTTP response code is 5xx', async t
   t.is(event.exception.values[0].value, 'This should be in the Sentry alert')
 })
 
-test.serial('Should not create a Sentry alert if HTTP response code is 4xx', async t => {
+test.serial('Should not create a Sentry alert if HTTP response code is 4xx', async(t) => {
   const beforeSend = () => {
     t.fail()
     return null // Disable sending Sentry error
@@ -60,7 +60,7 @@ test.serial('Should not create a Sentry alert if HTTP response code is 4xx', asy
 
   sentry.init({
     dsn: 'https://na@sentry.io/1234',
-    beforeSend
+    beforeSend,
   })
 
   const app = express()
@@ -85,7 +85,7 @@ test.serial('Should not create a Sentry alert if HTTP response code is 4xx', asy
   t.is(res.statusCode, 404)
 })
 
-test.serial('Should not create a Sentry alert if Sentry handler before routes', async t => {
+test.serial('Should not create a Sentry alert if Sentry handler before routes', async(t) => {
   const beforeSend = () => {
     t.fail()
     return null // Disable sending Sentry error
@@ -93,7 +93,7 @@ test.serial('Should not create a Sentry alert if Sentry handler before routes', 
 
   sentry.init({
     dsn: 'https://na@sentry.io/1234',
-    beforeSend
+    beforeSend,
   })
 
   const app = express()

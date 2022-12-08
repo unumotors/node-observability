@@ -1,3 +1,8 @@
+# 2.1.0
+
+* Add node 18 support
+* Update most dependencies to latest version
+
 # 2.0.1
 
 * Updates @sentry/node to v7

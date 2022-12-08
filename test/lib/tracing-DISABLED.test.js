@@ -9,21 +9,21 @@ const Tracing = require('../../lib/tracing')
 // Tracing needs to go before the imports (as it does when importing node-observabilty)
 const tracing = new Tracing({
   enabled: false,
-  serviceName: 'unit-test'
+  serviceName: 'unit-test',
 })
 
-test.serial('isEnabled() returns correct value', async t => {
+test.serial('isEnabled() returns correct value', (t) => {
   t.is(tracing.isEnabled(), false)
 })
 
-test.serial('currentTraceId() does not fail', async t => {
+test.serial('currentTraceId() does not fail', (t) => {
   t.is(tracing.currentTraceId(), undefined)
 })
 
-test.serial('currentRootSpan() does not fail', async t => {
+test.serial('currentRootSpan() does not fail', (t) => {
   t.is(tracing.currentRootSpan(), undefined)
 })
 
-test.serial('addRootSpanAttribute() does not fail', async t => {
+test.serial('addRootSpanAttribute() does not fail', (t) => {
   t.is(tracing.currentRootSpan(), undefined)
 })

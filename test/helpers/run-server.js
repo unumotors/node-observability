@@ -6,11 +6,11 @@ process.env.TRACING_ENABLED = true
 process.env.TRACING_URI = 'http://localhost:4318/v1/traces'
 process.env.TRACING_DEBUG = true
 
-const observability = require('../../index')
 const { fork } = require('child_process')
 
 const http = require('http')
 const express = require('express')
+const observability = require('../../index')
 
 const app = express()
 const server = http.createServer(app)
@@ -32,7 +32,7 @@ app.get('/ping', (req, res) => {
   res.send()
 })
 
-app.get('/', async(req, res) => {
+app.get('/', (req, res) => {
   res.send('hello')
 })
 
@@ -40,7 +40,7 @@ async function doRequests() {
   // We need to spawn this so tracing does not monitor got http requests
   const compute = fork('get.js')
   compute.send('start')
-  await new Promise(res => {
+  await new Promise((res) => {
     compute.on('close', () => {
       res()
     })
@@ -51,6 +51,6 @@ setTimeout(async() => {
   console.log('starting to listen')
   server.listen(3000)
   await doRequests()
-  console.log(`Open http://localhost:3000 and browse around then`)
-  console.log(`Go to http://localhost:16686 and validate the existing traces (see README.md in test/helpers)`)
+  console.log('Open http://localhost:3000 and browse around then')
+  console.log('Go to http://localhost:16686 and validate the existing traces (see README.md in test/helpers)')
 }, 1000)

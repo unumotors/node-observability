@@ -1,9 +1,9 @@
 const test = require('ava')
 const request = require('supertest')
-const MonitorServer = require('../../lib/monitoring')
 const express = require('express')
 const http = require('http')
 const sinon = require('sinon')
+const MonitorServer = require('../../lib/monitoring')
 
 // Create a sinon sandbox which automatically gets restored between tests
 test.beforeEach((t) => {
@@ -14,12 +14,11 @@ test.afterEach((t) => {
   t.context.sinon.restore()
 })
 
-
-test('Should return a object', t => {
+test('Should return a object', (t) => {
   t.truthy(MonitorServer)
 })
 
-test('Should init with default values', t => {
+test('Should init with default values', (t) => {
   // this is the default but lets be explicit
   process.env.NODE_ENV = 'test'
   let monitor = new MonitorServer()
@@ -38,7 +37,7 @@ test('Should init with default values', t => {
   delete process.env.MONITOR_PORT
 })
 
-test('Should init with passed values', t => {
+test('Should init with passed values', (t) => {
   let monitor = new MonitorServer({ port: 8080 })
   t.is(monitor.config.port, 8080)
 
@@ -48,8 +47,7 @@ test('Should init with passed values', t => {
   t.is(monitor.config.enabled, true)
 })
 
-
-test('Have a metrics endpoint', async t => {
+test('Have a metrics endpoint', async(t) => {
   const monitor = new MonitorServer()
   const server = monitor.createServer()
   t.plan(2)
@@ -60,7 +58,7 @@ test('Have a metrics endpoint', async t => {
   t.is(res.text, '\n')
 })
 
-test('Should allow init and then close', t => {
+test('Should allow init and then close', (t) => {
   const monitor = new MonitorServer()
   // just to make sure we can init and close safely
   monitor.init()
@@ -68,7 +66,7 @@ test('Should allow init and then close', t => {
   t.pass()
 })
 
-test('given the unit tests we should not open the port for monitoring server', t => {
+test('given the unit tests we should not open the port for monitoring server', (t) => {
   process.env.NODE_ENV = 'test'
   const monitor = new MonitorServer()
   const server = http.createServer()
@@ -79,7 +77,7 @@ test('given the unit tests we should not open the port for monitoring server', t
   t.pass()
 })
 
-test('given development env we should start listening on default port', t => {
+test('given development env we should start listening on default port', (t) => {
   t.plan(1)
   process.env.NODE_ENV = 'development'
   const monitor = new MonitorServer()
@@ -90,7 +88,7 @@ test('given development env we should start listening on default port', t => {
   monitor.init()
 })
 
-test('given production env we should start listening on default port', t => {
+test('given production env we should start listening on default port', (t) => {
   t.plan(1)
   process.env.NODE_ENV = 'production'
   const monitor = new MonitorServer()
@@ -101,7 +99,7 @@ test('given production env we should start listening on default port', t => {
   monitor.init()
 })
 
-test('Should give help info on /', async t => {
+test('Should give help info on /', async(t) => {
   const monitor = new MonitorServer()
   const server = monitor.createServer()
   t.plan(4)
@@ -115,7 +113,7 @@ test('Should give help info on /', async t => {
   t.regex(res.text, /\/-\/readiness/)
 })
 
-test('Add liveness checks should work', async t => {
+test('Add liveness checks should work', (t) => {
   t.plan(1)
   const monitor = new MonitorServer()
   monitor.addLivenessCheck(async() => {})
@@ -123,7 +121,7 @@ test('Add liveness checks should work', async t => {
   t.is(monitor.livenessChecks.length, 2)
 })
 
-test('Add readiness checks should work', async t => {
+test('Add readiness checks should work', (t) => {
   t.plan(1)
   const monitor = new MonitorServer()
   monitor.addReadinessCheck(async() => {})
@@ -132,7 +130,7 @@ test('Add readiness checks should work', async t => {
   t.is(monitor.readinessChecks.length, 2)
 })
 
-test('Add addOnSignalHook checks should work', async t => {
+test('Add addOnSignalHook checks should work', (t) => {
   t.plan(1)
   const monitor = new MonitorServer()
   monitor.addOnSignalHook(async() => {})
@@ -141,26 +139,27 @@ test('Add addOnSignalHook checks should work', async t => {
   t.is(monitor.signalHooks.length, 2)
 })
 
-test('convert list of functions to promises with an error for async', async t => {
+test('convert list of functions to promises with an error for async', async(t) => {
   t.plan(1)
+  // eslint-disable-next-line require-await
   const f = async() => {
     throw new Error('should be rejected')
   }
   const list = [f]
 
-  await MonitorServer.convertListToPromises(list).catch(err => t.is(err.message, 'should be rejected'))
+  await MonitorServer.convertListToPromises(list).catch((err) => t.is(err.message, 'should be rejected'))
 })
 
-test('convert list of functions to promises with an error', async t => {
+test('convert list of functions to promises with an error', async(t) => {
   t.plan(1)
   const f = () => {
     throw new Error('should be rejected')
   }
   const list = [f]
-  await MonitorServer.convertListToPromises(list).catch(err => t.is(err.message, 'should be rejected'))
+  await MonitorServer.convertListToPromises(list).catch((err) => t.is(err.message, 'should be rejected'))
 })
 
-test('convert list of functions to promises', async t => {
+test('convert list of functions to promises', async(t) => {
   t.plan(1)
   const f = async() => {
   }
@@ -171,9 +170,9 @@ test('convert list of functions to promises', async t => {
   t.is(promises.length, 2)
 })
 
-test('observeServer correctly adds checks', t => {
+test('observeServer correctly adds checks', (t) => {
   const server = {
-    listening: false
+    listening: false,
   }
 
   const monitor = new MonitorServer()
@@ -204,10 +203,9 @@ test('observeServer correctly adds checks', t => {
   monitor.livenessChecks[0]()
 })
 
-
-test('addPreControllersMiddlewares correctly adds middlewares for Express app', t => {
+test('addPreControllersMiddlewares correctly adds middlewares for Express app', (t) => {
   const server = {
-    listening: false
+    listening: false,
   }
 
   let count = 0
@@ -216,7 +214,7 @@ test('addPreControllersMiddlewares correctly adds middlewares for Express app', 
     use: (requestHandler) => {
       t.truthy(requestHandler)
       count += 1
-    }
+    },
   }
 
   const monitor = new MonitorServer()
@@ -229,9 +227,9 @@ test('addPreControllersMiddlewares correctly adds middlewares for Express app', 
   t.is(count, 2)
 })
 
-test('addPreControllersMiddlewares throws if Express app is undefined', t => {
+test('addPreControllersMiddlewares throws if Express app is undefined', (t) => {
   const server = {
-    listening: false
+    listening: false,
   }
 
   const monitor = new MonitorServer()
@@ -244,9 +242,9 @@ test('addPreControllersMiddlewares throws if Express app is undefined', t => {
   t.is(err.message, 'express application object is undefined')
 })
 
-test('addPostControllersMiddlewares correctly adds middlewares for Express app', t => {
+test('addPostControllersMiddlewares correctly adds middlewares for Express app', (t) => {
   const server = {
-    listening: false
+    listening: false,
   }
 
   let count = 0
@@ -255,7 +253,7 @@ test('addPostControllersMiddlewares correctly adds middlewares for Express app',
     use: (requestHandler) => {
       t.truthy(requestHandler)
       count += 1
-    }
+    },
   }
 
   const monitor = new MonitorServer()
@@ -266,9 +264,9 @@ test('addPostControllersMiddlewares correctly adds middlewares for Express app',
   t.is(count, 1)
 })
 
-test('addPostControllersMiddlewares throws if Express app is undefined', t => {
+test('addPostControllersMiddlewares throws if Express app is undefined', (t) => {
   const server = {
-    listening: false
+    listening: false,
   }
 
   const monitor = new MonitorServer()
@@ -281,9 +279,9 @@ test('addPostControllersMiddlewares throws if Express app is undefined', t => {
   t.is(err.message, 'express application object is undefined')
 })
 
-test('observeServer can be called after middleware has been added', t => {
+test('observeServer can be called after middleware has been added', (t) => {
   const server = {
-    listening: false
+    listening: false,
   }
 
   const app = express()

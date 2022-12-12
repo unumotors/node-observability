@@ -30,7 +30,7 @@ services:
 
   # Otel collector
   otel-collector:
-    image: otel/opentelemetry-collector:0.54.0
+    image: otel/opentelemetry-collector:0.67.0
     # removed in 0.44 "--log-level=DEBUG"
     command: ["--config=/etc/otel-collector-config.yml"]
     environment:

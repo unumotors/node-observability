@@ -9,92 +9,38 @@ test.afterEach(() => {
   process.env = { ...originalEnv }
 })
 
-test.serial('FeatureFlags is disabled by default', (t) => {
-  const featureFlags = new FeatureFlags()
-  featureFlags.init()
-  t.is(featureFlags.disabled, true)
-})
-
 test.serial('FeatureFlags can be disabled by an environment flag', (t) => {
   process.env.FEATURE_FLAGS_DISABLED = 'true'
   const featureFlags = new FeatureFlags()
-  featureFlags.init({})
+  featureFlags.init()
   t.is(featureFlags.disabled, true)
 })
 
 test.serial('FeatureFlags initiation fails if required parameters are not passed', (t) => {
   const featureFlags = new FeatureFlags()
   t.throws(() => {
-    featureFlags.init({})
-  }, { message: 'GitLab Feature Flag initiation failed. You need to pass in "featureFlags.instanceId"' })
+    featureFlags.init()
+  }, { message: 'GitLab Feature Flag initiation failed. You need to set FEATURE_FLAGS_INSTANCE_ID' })
+  process.env.FEATURE_FLAGS_INSTANCE_ID = 'test'
   t.throws(() => {
-    featureFlags.init({ instanceId: 'instance-id' })
-  }, { message: 'GitLab Feature Flag initiation failed. You need to pass in "featureFlags.url"' })
+    featureFlags.init()
+  }, { message: 'GitLab Feature Flag initiation failed. You need to set FEATURE_FLAGS_URL' })
 })
 
 test.serial('FeatureFlags initiation passes required values to unleash client correctly', (t) => {
   const featureFlags = new FeatureFlags()
   const unleashInitiationStub = sinon.stub(unleash, 'initialize')
     .returns({ fake: 'client' })
-  const config = {
-    instanceId: 'instance-id',
-    url: 'url',
-  }
 
-  featureFlags.init(config)
+  process.env.FEATURE_FLAGS_INSTANCE_ID = 'instance-id'
+  process.env.FEATURE_FLAGS_URL = 'url'
 
-  t.deepEqual(unleashInitiationStub.firstCall.lastArg, {
-    appName: 'test',
-    instanceId: 'instance-id',
-    url: 'url',
-  })
-
-  t.deepEqual(featureFlags.unleash, { fake: 'client' })
-  t.is(featureFlags.disabled, false)
-})
-
-test.serial('FeatureFlags initiation passes environment', (t) => {
-  const featureFlags = new FeatureFlags()
-  const unleashInitiationStub = sinon.stub(unleash, 'initialize')
-    .returns({ fake: 'client' })
-  const config = {
-    instanceId: 'instance-id',
-    url: 'url',
-    environment: 'unit-test',
-  }
-
-  featureFlags.init(config)
-
-  t.deepEqual(unleashInitiationStub.firstCall.lastArg, {
-    appName: 'unit-test',
-    instanceId: 'instance-id',
-    url: 'url',
-  })
-
-  t.deepEqual(featureFlags.unleash, { fake: 'client' })
-  t.is(featureFlags.disabled, false)
-})
-
-test.serial('FeatureFlags initiation passes extra unleashOptions', (t) => {
-  const featureFlags = new FeatureFlags()
-  const unleashInitiationStub = sinon.stub(unleash, 'initialize')
-    .returns({ fake: 'client' })
-  const config = {
-    instanceId: 'instance-id',
-    url: 'url',
-    unleashOptions: {
-      url: 'url2',
-      httpOptions: {},
-    },
-  }
-
-  featureFlags.init(config)
+  featureFlags.init()
 
   t.deepEqual(unleashInitiationStub.firstCall.lastArg, {
     appName: 'test',
     instanceId: 'instance-id',
-    url: 'url2',
-    httpOptions: {},
+    url: 'url',
   })
 
   t.deepEqual(featureFlags.unleash, { fake: 'client' })
@@ -125,6 +71,8 @@ test.serial('FeatureFlags required parameters can be passed using env variables'
 })
 
 test.serial('FeatureFlags.isEnabled returns false by default', (t) => {
+  process.env.FEATURE_FLAGS_DISABLED = 'true'
+
   const featureFlags = new FeatureFlags()
   featureFlags.init()
 

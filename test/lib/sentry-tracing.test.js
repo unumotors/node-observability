@@ -4,6 +4,8 @@ process.env.NODE_ENV = 'not-test-or-development'
 process.env.OBSERVABILITY_SERVICE_NAME = 'david-observability-run-server'
 process.env.TRACING_ENABLED = true
 process.env.TRACING_URI = 'localhost'
+process.env.FEATURE_FLAGS_DISABLED = 'true'
+
 // do not reference an env variable
 // we need to use the same sentry dsn across envs
 process.env.SENTRY_DSN = 'https://c71e3c706d914df387610041a232f969@sentry.io/1546792'

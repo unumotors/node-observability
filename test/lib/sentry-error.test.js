@@ -18,8 +18,9 @@ test.serial('Should create a Sentry alert if HTTP response code is 5xx', async(t
     return null // Disable sending Sentry error
   }
 
+  process.env.SENTRY_DSN = 'https://na@sentry.io/1234'
+
   sentry.init({
-    dsn: 'https://na@sentry.io/1234',
     beforeSend,
   })
 
@@ -58,8 +59,9 @@ test.serial('Should not create a Sentry alert if HTTP response code is 4xx', asy
     return null // Disable sending Sentry error
   }
 
+  process.env.SENTRY_DSN = 'https://na@sentry.io/1234'
+
   sentry.init({
-    dsn: 'https://na@sentry.io/1234',
     beforeSend,
   })
 
@@ -91,8 +93,9 @@ test.serial('Should not create a Sentry alert if Sentry handler before routes', 
     return null // Disable sending Sentry error
   }
 
+  process.env.SENTRY_DSN = 'https://na@sentry.io/1234'
+
   sentry.init({
-    dsn: 'https://na@sentry.io/1234',
     beforeSend,
   })
 

@@ -37,16 +37,6 @@ test('Should init with default values', (t) => {
   delete process.env.MONITOR_PORT
 })
 
-test('Should init with passed values', (t) => {
-  let monitor = new MonitorServer({ port: 8080 })
-  t.is(monitor.config.port, 8080)
-
-  process.env.NODE_ENV = 'development'
-  monitor = new MonitorServer({ enabled: true })
-  // enabled for any thing other than test
-  t.is(monitor.config.enabled, true)
-})
-
 test('Have a metrics endpoint', async(t) => {
   const monitor = new MonitorServer()
   const server = monitor.createServer()

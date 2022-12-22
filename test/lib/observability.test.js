@@ -2,18 +2,19 @@ const test = require('ava')
 const sinon = require('sinon')
 const Observability = require('../../lib/observability')
 
-const defaultConfig = { serviceName: 'foo' }
-
 test.afterEach(() => {
   sinon.restore()
 })
 
 test.serial('Should throw an error if already initialized', async(t) => {
+  process.env.OBSERVABILITY_SERVICE_NAME = 'service-name'
+  process.env.FEATURE_FLAGS_DISABLED = 'true'
+
   const index = new Observability()
-  index.init(defaultConfig)
+  index.init()
   await index.monitoring.close()
   const err = t.throws(() => {
-    index.init(defaultConfig)
+    index.init()
   })
   t.is(err.message, 'Already initialized')
   await index.monitoring.close()
@@ -25,7 +26,7 @@ test.serial('Should setup correct instance methods', (t) => {
   t.falsy(index.metrics)
   t.falsy(index.monitoring)
   //t.falsy(index.tracer)
-  index.init(defaultConfig)
+  index.init()
   t.truthy(index.Sentry)
   t.truthy(index.metrics)
   t.truthy(index.monitoring)
@@ -38,15 +39,11 @@ test.serial('Should setup correct instance methods', (t) => {
 test.serial('FeatureFlags works end to end', (t) => {
   const index = new Observability()
 
-  const featureFlagOptions = {
-    instanceId: 'instance-id',
-    url: 'https://gitlab.unueng.com/api/v4/feature_flags/unleash/XXX', // fake url
-  }
+  delete process.env.FEATURE_FLAGS_DISABLED
+  process.env.FEATURE_FLAGS_INSTANCE_ID = 'instance-id'
+  process.env.FEATURE_FLAGS_URL = 'url'
 
-  index.init({
-    ...defaultConfig,
-    featureFlags: featureFlagOptions,
-  })
+  index.init()
 
   // A fake just wraps the real function without changing what it does
   // https://sinonjs.org/releases/v11.1.2/fakes/

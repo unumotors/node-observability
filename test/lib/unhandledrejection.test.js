@@ -35,7 +35,8 @@ test('Allow disabling UnhandledRejection handler exiting', (t) => {
     t.fail('should not have been called')
   }
 
-  x.init({ exitOnError: false })
+  process.env.UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED = 'true'
+  x.init()
   x.rejectionHandler(new Error('exit error'))
   process.exit = temp
   console.warn = logTemp
@@ -64,7 +65,8 @@ test('Sentry should clear its queues before exiting', async(t) => {
     return { flush: (val) => t.is(val, 5000) }
   }
 
-  x.init({ exitOnError: true })
+  delete process.env.UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED
+  x.init()
 
   await x.rejectionHandler(new Error('exit error'))
   process.exit = temp

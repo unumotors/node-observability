@@ -7,10 +7,9 @@ test('given no NODE_ENV it defaults to test in unit tests', (t) => {
 
 test('given the right env getEnvironment should return the correct results', (t) => {
   process.env.NODE_ENV = 'node_env'
-  t.is(helpers.getEnvironment({}), 'node_env')
-  t.is(helpers.getEnvironment({ environment: 'config_env' }), 'config_env')
+  t.is(helpers.getEnvironment(), 'node_env')
   process.env.APP_ENV = 'app_env'
-  t.is(helpers.getEnvironment({ environment: 'config_env' }), 'app_env')
+  t.is(helpers.getEnvironment(), 'app_env')
 })
 
 test('should match /ping URL', (t) => {

@@ -1,5 +1,9 @@
 # 2.1.0
 
+* Fix issue with configuration that permanently disabled the feature flags
+
+# 2.1.0
+
 * Add node 18 support
 * Update most dependencies to latest version
 

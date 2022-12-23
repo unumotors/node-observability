@@ -2,7 +2,6 @@ const test = require('ava')
 
 process.env.OBSERVABILITY_SERVICE_NAME = 'index.test.js'
 process.env.MONITOR_PORT = 9091 // so tests do not overlap
-process.env.FEATURE_FLAGS_DISABLED = 'true'
 
 const Observability = require('../lib/observability')
 

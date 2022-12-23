@@ -8,7 +8,6 @@ test.afterEach(() => {
 
 test.serial('Should throw an error if already initialized', async(t) => {
   process.env.OBSERVABILITY_SERVICE_NAME = 'service-name'
-  process.env.FEATURE_FLAGS_DISABLED = 'true'
 
   const index = new Observability()
   index.init()
@@ -39,7 +38,6 @@ test.serial('Should setup correct instance methods', (t) => {
 test.serial('FeatureFlags works end to end', (t) => {
   const index = new Observability()
 
-  delete process.env.FEATURE_FLAGS_DISABLED
   process.env.FEATURE_FLAGS_INSTANCE_ID = 'instance-id'
   process.env.FEATURE_FLAGS_URL = 'url'
 

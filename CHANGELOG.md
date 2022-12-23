@@ -1,4 +1,8 @@
-# 2.1.0
+# 2.3.0
+
+* Make Feature Flags optional and not crash by default.
+
+# 2.2.0
 
 * Fix issue with configuration that permanently disabled the feature flags
 

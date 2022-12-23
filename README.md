@@ -67,7 +67,6 @@ Optional
 |`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
 |`MONITOR_DOMAIN_FIX_DISABLED` | undefined | If set, the domain fix will not be applied |
 |`UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED` | false | If set, disables exit with an error on unhandled promises. |
-|`FEATURE_FLAGS_DISABLED` | undefined | If set, all Feature Flags will default to `false` and the feature flag client will not initialize.  |
 |`FEATURE_FLAGS_INSTANCE_ID` | undefined | Sets the Feature Flags instance id. |
 |`FEATURE_FLAGS_URL` | undefined | Sets the Feature Flags url. |
 

@@ -58,7 +58,7 @@
     "celebrate": "^15.0.1",
     "express": "4.18.2",
     "got": "^9.6.0",
-    "mongoose": "^6.8.0",
+    "mongoose": "6.8.1",
     "nyc": "^15.1.0",
     "sinon": "15.0.1",
     "socket.io": "2.5.0",

@@ -1,6 +1,14 @@
 # Observability
 
-A easy way to add high visibility into your nodejs services here at unu. This will do a bunch of things for you that will help ease the deployment of your application into our platform. It might seem like some upfront work to configure but this will save many hours later on in debugging.
+An easy way to add high visibility into your nodejs services.
+
+This will do a bunch of things for you that will help ease the deployment of your application into our platform:
+
+* Sentry error handling of unhandled promise rejections and express errors
+* Monitoring server for liveness and readiness checks
+* Prometheus metrics exporter
+* Gitlab feature flags
+* OpenTelemetry tracing for all [default instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node), Mongoose, RabbitMQ (amqplib) and socket.io
 
 See Table of Contents
 * [Usage](#usage)
@@ -10,17 +18,18 @@ See Table of Contents
 * -> [Sentry](#sentry)
 * -> [UnhandledPromises](#UnhandledPromises)
 * -> [Tracing](#tracing)
+* -> [Metrics](#metrics)
 
 ## Usage
 
-  npm install --save @infrastructure/observability
+  npm install --save @unu/observability
 
 In the first line of your `index.js` include the following. This is because our tracing library auto instruments all other requires
 
 Minimum configuration to get going:
 ```js
 // Needs to be the first thing included in your application
-require('@infrastructure/observability')
+import observability from '@unu/observability'
 ```
 
 ```yaml
@@ -40,7 +49,7 @@ env:
 
 ## Configuration
 
-Currently there are limited configuration options provided, This in intentional in an attempt standardize this across our projects.
+Currently, there are limited configuration options provided, This is intentional in an attempt to standardize between projects.
 
 The limited options that are provided can either only configured via standard ENV variables only
 
@@ -48,35 +57,38 @@ The limited options that are provided can either only configured via standard EN
 
 Required
 
-|Name       |Default                              | Description |
-|-----------|-------------------------------------|-------------|
-|`APP_ENV`  | `config.environment`                |             |
-|`NODE_ENV` | na                                  |This is injected as "build" time so into the docker image, Supported values are `development`, `test`, `production` ONLY for runtime configuration see `APP_ENV`      |
+| Name                         | Description                                                                                                                                                       |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `APP_ENV`                    | Current runtime environment. Supported values are `development`, `test`, `production`                                                                             |
+| `NODE_ENV`                   | This is injected as "build" time so into the docker image, Supported values are `development`, `test`, `production`. ONLY for runtime configuration see `APP_ENV` |
+| `OBSERVABILITY_SERVICE_NAME` | Name of the current service.                                                                                                                                      |
+| `SENTRY_DSN`                 | DSN of Sentry                                                                                                                                                     |
+
 
 Optional
 
-|Name                       |Default                | Description |
-|---------------------------|-----------------------|-------------|
-|`OBSERVABILITY_SERVICE_NAME`          | `config.serviceName`  |                                 |
-|`MONITORING_PORT`          | 9090                  | Set monitoring server to custom value|
-|`SENTRY_DEBUG`             | false                 | Can put sentry in debug mode|
-|`SENTRY_DSN`               | `config.sentry.dsn`   |                             |
-|`TRACING_ENABLED`          | false |                             |
-|`TRACING_EXPRESS_ENABLED`          | false | If tracing is enabled for Express requests                           |
-|`TRACING_URI`          | http://otel-collector:4318/v1/trace | Otel Collector to send traces to |
-|`TRACING_CAPTURE_MONGO_QUERIES_ENABLED` | false | If set mongo queries will be included in traces. Should not be enabled in production yet |
-|`MONITOR_DOMAIN_FIX_DISABLED` | undefined | If set, the domain fix will not be applied |
-|`UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED` | false | If set, disables exit with an error on unhandled promises. |
-|`FEATURE_FLAGS_INSTANCE_ID` | undefined | Sets the Feature Flags instance id. |
-|`FEATURE_FLAGS_URL` | undefined | Sets the Feature Flags url. |
+| Name                                         | Default                             | Description                                                                              |
+|----------------------------------------------|-------------------------------------|------------------------------------------------------------------------------------------|
+| `MONITORING_PORT`                            | 9090                                | Set monitoring server to custom value                                                    |
+| `SENTRY_DEBUG`                               | false                               | Can put sentry in debug mode                                                             |
+| `TRACING_EXPRESS_ENABLED`                    | false                               | If tracing is enabled for Express requests                                               |
+| `TRACING_URI`                                | http://otel-collector:4318/v1/trace | Otel Collector to send traces to                                                         |
+| `TRACING_CAPTURE_MONGO_QUERIES_ENABLED`      | false                               | If set mongo queries will be included in traces. Should not be enabled in production yet |
+| `MONITOR_DOMAIN_FIX_DISABLED`                | undefined                           | If set, the domain fix will not be applied                                               |
+| `UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED` | false                               | If set, disables exit with an error on unhandled promises.                               |
+| `FEATURE_FLAGS_INSTANCE_ID`                  | undefined                           | Sets the Feature Flags instance id.                                                      |
+| `FEATURE_FLAGS_URL`                          | undefined                           | Sets the Feature Flags url.                                                              |
 
 ## Features
+
 List of features we automatically install and configure.
 
 ### Health Checks
+
 Provides a custom server listens on port `:9090` that exposes `/-/liveness` and `/-/readiness` endpoints.
 
 ### Bind to an existing (express/http) web server
+
 Adds monitoring features to an existing web server (express + http):
 
 - This automatically adds the correct liveness/readiness checks
@@ -127,6 +139,7 @@ observability.monitoring.addReadinessCheck(() => {
 ```
 
 ### Sentry
+
 Configures Sentry error handling. This just catches unhandled exceptions it does not install it into any webserver such as express.
 
 **Important:** this requires that a Sentry DSN is configured in **production**: we don't want to support services without at least exception handling.
@@ -178,6 +191,7 @@ This behavior can be disabled if needed by enabling the `UNHANDLED_REJECTION_EXI
 
 
 ### Metrics
+
 The custom monitoring server listens on port `:9090` that exposes `/-/metrics` and exposes prometheus metrics
 
 [See wiki](https://unumotors.atlassian.net/wiki/spaces/SW/pages/713424921/k8s+Add+prometheus+monitoring+to+your+app)
@@ -186,14 +200,15 @@ The custom monitoring server listens on port `:9090` that exposes `/-/metrics` a
 `observability.metrics` is just an instance of `prom-client` so any thing you could do with the official library you can do here.
 
 ```js
-require('@infrastructure/observability')
+import observability from '@unu/observability'
 // returns metricsClient is an instance of prom-client.client
 const connectedGauge = new observability.metrics.Gauge({ name: 'unu_bot_slack_connected', help: 'If unu-bot is connected to slack' })
 connectedGauge.set(0)
 ```
 
 ### Tracing
-Supports exporting trace data to opencencus compatible server.
+
+Supports exporting trace data to opentelemetry compatible server.
 
 You activate tracing per env via `TRACING_ENABLED=true` env flag.
 
@@ -211,6 +226,7 @@ Tracing ignores paths starting with the following regex:
 
 * All paths starting with /-/: /^\/-\/(.*)/
 * All paths equal to /ping: /^\/ping/
+* All paths related to feature falgs: /^\/api\/v4\/feature_flags\/unleash*/
 
 All traces have a default attribute "environment". Defaults to "development" and is overwritten by APP_ENV.
 

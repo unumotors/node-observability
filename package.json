@@ -1,7 +1,6 @@
 {
-  "name": "@infrastructure/observability",
+  "name": "@unu/observability",
   "version": "2.3.0",
-  "description": "Core infra that allows us to manage this application",
   "main": "index.js",
   "engines": {
     "node": ">=16.0.0"
@@ -12,9 +11,6 @@
     "test": "nyc --all ava --verbose --tap | tap-xunit > results.xml",
     "test-dev": "MONGO_CONNECTION_STRING=localhost:27017 ava --verbose",
     "test-coverage": "nyc report --reporter=text --reporter=text-summary"
-  },
-  "publishConfig": {
-    "@infrastructure:registry": "https://gitlab.unueng.com/api/v4/projects/476/packages/npm/"
   },
   "files": [
     "/lib",
@@ -29,10 +25,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.unueng.com:infrastructure/node-observability.git"
+    "url": "git@github.com:unumotors/node-observability.git"
   },
-  "author": "david <david@unumotors.com>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "dependencies": {
     "@godaddy/terminus": "^4.11.0",
     "@opentelemetry/api": "^1.3.0",

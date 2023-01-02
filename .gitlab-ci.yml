@@ -1,16 +1,18 @@
-# Use node:-alpine as the base image to run tests/building
-# Right now only a single node version is supported
 image: node:18.12-alpine
 
-include:
-  # See template for docs
-  # https://gitlab.unueng.com/gitlab-ci/templates/tree/master/npm
-  - project: 'gitlab-ci/templates'
-    # We use master instead of branches so we can automatically roll out updates
-    # That are not breaking changes. We do versioning on a file level
-    # If these break a user can manually go back and update the ref tag to a previous commit
-    ref: master
-    file: '/npm/0.2-template.yml'
+stages:
+- build
+- test
+- release
+
+before_script:
+- echo "@cloud:registry=https://gitlab.unueng.com/api/v4/packages/npm/" > ~/.npmrc
+- echo "@infrastructure:registry=https://gitlab.unueng.com/api/v4/packages/npm/" >> ~/.npmrc
+- echo "@cas:registry=https://gitlab.unueng.com/api/v4/packages/npm/" >> ~/.npmrc
+- echo "//${CI_SERVER_HOST}/api/v4/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
+- echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> ~/.npmrc
+# Give access to write to the public NPM repo
+- echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
 
 services:
   - name: mongo:5.0
@@ -18,11 +20,63 @@ services:
   - name: rabbitmq:3.8-management-alpine
     alias: rabbitmq
 
+setup:
+  stage: build
+  script:
+  - npm install
+  cache:
+    policy: pull-push
+    paths:
+    - node_modules/
+
+test:
+  stage: test
+  script:
+  # Wait for RabbitMQ to be running
+  - while ! nc -z localhost 15692 ; do sleep 1 ; done
+  - npm run test
+  - npm run test-coverage
+  cache:
+    policy: pull
+    paths:
+    - node_modules/
+  coverage: '/Statements.*?(\d+(?:\.\d+)?)%/'
+  artifacts:
+    reports:
+      junit: results.xml
+
 # Verify our code works with multiple node versions
 test-node16:
   image: node:16.15-alpine
   stage: test
   script:
+  # Wait for RabbitMQ to be running
+  - while ! nc -z localhost 15692 ; do sleep 1 ; done
   - npm i
   - npm run test
 
+lint:
+  stage: test
+  script:
+  - npm run lint
+  cache:
+    policy: pull
+    paths:
+    - node_modules/
+
+audit:
+  stage: test
+  script:
+  - npm audit --registry https://registry.npmjs.org/ --production
+  cache:
+    policy: pull
+    paths:
+    - node_modules/
+  allow_failure: true
+
+publish:
+  stage: release
+  script: npm publish --access public
+  only:
+    refs:
+    - tags

@@ -47,7 +47,7 @@ test:
 
 # Verify our code works with multiple node versions
 test-node16:
-  image: node:16.15-alpine
+  image: node:16.19-alpine
   stage: test
   script:
   # Wait for RabbitMQ to be running

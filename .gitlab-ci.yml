@@ -15,7 +15,7 @@ before_script:
 - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
 
 services:
-  - name: mongo:5.0
+  - name: mongo:6.0
     alias: mongodb
   - name: rabbitmq:3.8-management-alpine
     alias: rabbitmq

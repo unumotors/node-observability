@@ -79,7 +79,12 @@ test.serial('Does create traces for Taube Client/Server requests', async(t) => {
 
   const finishedSpans = traceExporter.getFinishedSpans()
 
+  // Should produce no network spans
+  const tcpConnectSpan = finishedSpans.find((span) => span.name == 'tcp.connect')
+  t.is(tcpConnectSpan, undefined)
+
   const requestHandlerSpan = finishedSpans.find((span) => span.name == 'GET /:id')
+
   t.is(requestHandlerSpan.attributes['http.target'], '/unit-test')
   t.is(requestHandlerSpan.attributes['banana.color'], 'yellow', 'should add custom attributes')
 

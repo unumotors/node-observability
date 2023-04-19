@@ -1,3 +1,7 @@
+# 2.4.0
+
+* Remove `@opentelemetry/instrumentation-net` from tracing to reduce number of useless traces
+
 # 2.3.0
 
 * Make Feature Flags optional and not crash by default.

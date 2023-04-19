@@ -19,3 +19,4 @@ After you have a setup using `docker-compose up` run:
 * `node run-server.js` and go through these manual steps:
 
 1. Get traces. There should only be one trace. No traces for /-/readiness, /-/liveness, /-/ping and /ping
+2. The traces should not include `*.connect` traces. For example `tcp.connect`

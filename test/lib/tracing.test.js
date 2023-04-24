@@ -79,6 +79,10 @@ test.serial('Does create traces for Taube Client/Server requests', async(t) => {
 
   const finishedSpans = traceExporter.getFinishedSpans()
 
+  const dnsSpan = finishedSpans.find((span) => span.instrumentationLibrary?.name
+  == '@opentelemetry/instrumentation-dns')
+  t.is(dnsSpan, undefined)
+
   // Should produce no network spans
   const tcpConnectSpan = finishedSpans.find((span) => span.name == 'tcp.connect')
   t.is(tcpConnectSpan, undefined)

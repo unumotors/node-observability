@@ -1,3 +1,8 @@
+# 2.5.0
+
+* Remove `@opentelemetry/instrumentation-dns` from tracing to reduce number of useless traces
+* Add `TRACING_MONGO_DISABLED` to optionally disable mongodb tracing
+
 # 2.4.0
 
 * Remove `@opentelemetry/instrumentation-net` from tracing to reduce number of useless traces

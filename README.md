@@ -78,6 +78,9 @@ Optional
 | `UNHANDLED_REJECTION_EXIT_ON_ERROR_DISABLED` | false                               | If set, disables exit with an error on unhandled promises.                               |
 | `FEATURE_FLAGS_INSTANCE_ID`                  | undefined                           | Sets the Feature Flags instance id.                                                      |
 | `FEATURE_FLAGS_URL`                          | undefined                           | Sets the Feature Flags url.                                                              |
+| `TRACING_MONGO_DISABLED`                     | undefined                           | Can be set to any value to disable mongodb tracing                                       |
+
+
 
 ## Features
 

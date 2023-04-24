@@ -1,6 +1,6 @@
 {
   "name": "@unu/observability",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "main": "index.js",
   "engines": {
     "node": ">=16.0.0"
@@ -41,7 +41,6 @@
     "@sentry/node": "^7.0.0",
     "http-errors": "^2.0.0",
     "opentelemetry-instrumentation-amqplib": "^0.27.1",
-    "opentelemetry-instrumentation-mongoose": "^0.34.0",
     "opentelemetry-instrumentation-socket.io": "^0.34.0",
     "prom-client": "^14.0.1",
     "unleash-client": "^3.14.1"

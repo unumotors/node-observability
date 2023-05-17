@@ -47,6 +47,10 @@ test.before(async() => {
   await mongoose.connect(`mongodb://${mongoConnectionString}/test-${randomDbName}`, {
     useNewUrlParser: true,
   })
+
+  // The tracing initialization adds a bunch of traces that we do not need
+  // flushing them once gets rid of them, so we have a clean slate for our tests
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
 })
 
 test.beforeEach(() => {
@@ -60,12 +64,13 @@ test.serial('TRACING_CAPTURE_MONGO_QUERIES_ENABLED does add full mongo queries',
     name: 'banana',
   }, { upsert: true })
 
-  await new Promise((resolve1) => setTimeout(resolve1, 1000)) // flaky otherwise
+  await new Promise((resolve1) => setTimeout(resolve1, 2000)) // flaky otherwise
   await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
 
   const finishedSpans = traceExporter.getFinishedSpans()
 
   const mongoSpan = finishedSpans.find((span) => span.name == 'mongoose.Data.findOneAndUpdate')
+
   // eslint-disable-next-line max-len
   t.is(mongoSpan.attributes['db.statement'], 'findOneAndUpdate: {"condition":{"name":"banana"},"updates":{"name":"banana","$setOnInsert":{"__v":0}},"options":{"upsert":true}}')
 })

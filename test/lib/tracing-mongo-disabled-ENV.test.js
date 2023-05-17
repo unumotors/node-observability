@@ -45,6 +45,10 @@ test.before(async() => {
   await mongoose.connect(`mongodb://${mongoConnectionString}/test-${randomDbName}`, {
     useNewUrlParser: true,
   })
+
+  // The tracing initialization adds a bunch of traces that we do not need
+  // flushing them once gets rid of them, so we have a clean slate for our tests
+  await tracing.sdk._tracerProviderConfig.spanProcessor.forceFlush()
 })
 
 test.beforeEach(() => {

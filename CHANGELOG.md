@@ -1,3 +1,7 @@
+# Unreleased changes (added to next release)
+
+* Update opentelemetry-js monorepo to ^0.38.0
+
 # 2.5.0
 
 * Remove `@opentelemetry/instrumentation-dns` from tracing to reduce number of useless traces

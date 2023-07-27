@@ -1,6 +1,10 @@
-# Unreleased changes (added to next release)
+# Changelog
+
+# 2.6.0
 
 * Update opentelemetry-js monorepo to ^0.38.0
+* Update various libraries
+* Add typescript types
 
 # 2.5.0
 

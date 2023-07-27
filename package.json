@@ -10,11 +10,13 @@
     "lint-fix": "eslint . --fix",
     "test": "nyc --all ava --verbose --tap | tap-xunit > results.xml",
     "test-dev": "MONGO_CONNECTION_STRING=localhost:27017 ava --verbose",
-    "test-coverage": "nyc report --reporter=text --reporter=text-summary"
+    "test-coverage": "nyc report --reporter=text --reporter=text-summary",
+    "generate-type-definitions": "bin/generate-type-definitions.sh"
   },
   "files": [
     "/lib",
-    "index.js"
+    "index.js",
+    "index.d.ts"
   ],
   "ava": {
     "files": [
@@ -58,6 +60,7 @@
     "socket.io": "2.5.0",
     "socket.io-client": "2.5.0",
     "supertest": "6.3.3",
-    "tap-xunit": "2.4.1"
+    "tap-xunit": "2.4.1",
+    "typescript": "^5.1.6"
   }
 }

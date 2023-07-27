@@ -1,4 +1,4 @@
-image: node:18.16-alpine
+image: node:18.17-alpine
 
 stages:
 - build
@@ -47,7 +47,7 @@ test:
 
 # Verify our code works with multiple node versions
 test-node16:
-  image: node:16.20-alpine # Comment next to image prevents Renovate from updating the version
+  image: node:18.17-alpine # Comment next to image prevents Renovate from updating the version
   stage: test
   script:
   # Wait for RabbitMQ to be running
